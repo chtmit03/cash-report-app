@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; padding: 10px; }
+    .container { background: white; padding: 20px; border-radius: 5px; max-width: 700px; margin: auto; border: 1px solid #ccc; }
+    .header-table, .cash-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .header-table td { border: 1px dotted #999; padding: 5px; }
+    .cash-table th, .cash-table td { border: 1px solid #000; padding: 5px; text-align: center; }
+    .title { color: #003366; font-weight: bold; margin-bottom: 15px; }
+    input { width: 90%; border: none; outline: none; text-align: center; }
+    .bg-gray { background-color: #eeeeee; }
+    .total-row { font-weight: bold; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <table class="header-table">
+      <tr><td>สำนักงาน</td><td><input type="text" id="office" value="เขาคิชฌกูฏ"></td></tr>
+      <tr><td>วันที่เข้าตรวจ</td><td><input type="text" id="checkDate" value="29 มกราคม 2568"></td></tr>
+      <tr><td>ผู้ตรวจ</td><td><input type="text" id="inspector" value="กมลชนก เหล็กมูล"></td></tr>
+    </table>
+
+    <div class="title">การปฏิบัติงาน เพื่อความปลอดภัยและรอบคอบ ถูกต้อง</div>
+
+    <table class="cash-table" style="width: 50%; margin-left: auto;">
+      <tr class="bg-gray"><td>ตู้นิรภัย</td><td style="color:red">มี</td></tr>
+      <tr><td>ลักษณะตู้นิรภัย</td><td style="color:red">แบบหมุนรหัส</td></tr>
+      <tr><td>การปิดล็อคด้วยรหัส</td><td style="color:red">ปิดล็อครหัสได้ปกติ</td></tr>
+      <tr><td>การทดสอบการใช้งาน</td><td style="color:red">ผ่านทุกคน</td></tr>
+    </table>
+
+    <p>บันทึกเพิ่มเติม</p>
+    <div class="bg-gray" style="height: 60px; border: 1px solid #ccc;"></div>
+
+    <h3>เงินสดคงเหลือ</h3>
+    <div style="display: flex; justify-content: space-between;">
+      <table style="width: 45%;">
+        <tr><td>ยอดยกมา</td><td style="border: 1px solid #000; color:red">2,195</td></tr>
+        <tr><td>ยอดรับเงิน</td><td style="border: 1px dotted #ccc; height:20px"></td></tr>
+        <tr><td>ยอดจ่ายเงิน</td><td style="border: 1px dotted #ccc; height:20px"></td></tr>
+        <tr><td colspan="2"><br>เงินสดคงเหลือ <span style="margin-left:50px; border-bottom: 3px double #000;">2,195</span></td></tr>
+      </table>
+
+      <table class="cash-table" style="width: 50%;">
+        <tr class="bg-gray"><th>ชนิด</th><th>จำนวน</th><th>รวมเงิน</th></tr>
+        <tr><td>1000</td><td><input type="number" id="q1000" oninput="cal()"></td><td id="t1000">0</td></tr>
+        <tr><td>500</td><td><input type="number" id="q500" oninput="cal()"></td><td id="t500">0</td></tr>
+        <tr><td>100</td><td><input type="number" id="q100" oninput="cal()" value="7"></td><td id="t100">700</td></tr>
+        <tr><td>50</td><td><input type="number" id="q50" oninput="cal()"></td><td id="t50">0</td></tr>
+        <tr><td>20</td><td><input type="number" id="q20" oninput="cal()" value="45"></td><td id="t20">900</td></tr>
+        <tr><td>10</td><td><input type="number" id="q10" oninput="cal()" value="20"></td><td id="t10">200</td></tr>
+        <tr><td>5</td><td><input type="number" id="q5" oninput="cal()" value="69"></td><td id="t5">345</td></tr>
+        <tr><td>1</td><td><input type="number" id="q1" oninput="cal()" value="50"></td><td id="t1">50</td></tr>
+        <tr class="bg-gray"><td>รวม</td><td></td><td id="totalAll" class="total-row">2,195</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function cal() {
+      const units = [1000, 500, 100, 50, 20, 10, 5, 1];
+      let total = 0;
+      units.forEach(u => {
+        let q = document.getElementById('q' + u).value || 0;
+        let sum = q * u;
+        document.getElementById('t' + u).innerText = sum.toLocaleString();
+        total += sum;
+      });
+      document.getElementById('totalAll').innerText = total.toLocaleString();
+    }
+  </script>
+</body>
+</html>
