@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <title>หน้า 2 - ภาษีและการพิมพ์รายงาน</title>
+  
+  <style>
+    /* ปรับแต่ง Dropdown สถานะ */
+    .status-select {
+      color: var(--accent-red);
+      font-weight: 800;
+      width: 100%;
+      text-align-last: center;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #F0F0F0;
+      background: #fff !important;
+    }
+
+    /* ปรับช่องหมายเหตุฝั่งซ้ายให้เต็มบรรทัด */
+    .full-width-note {
+      width: 100%;
+      margin-top: 5px;
+      margin-bottom: 20px;
+      padding: 12px;
+      border: 2px solid #F0F0F0;
+      border-radius: 12px;
+      background: #fff !important;
+      display: block;
+      font-family: 'Sarabun';
+    }
+
+    /* จัดการให้การ์ดฝั่งขวายืดเต็มความสูง */
+    .page2-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: stretch; /* ให้การ์ดสูงเท่ากัน */
+    }
+
+    .tax-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tax-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px; /* เพิ่มระยะห่างแถวเพื่อให้ตารางยืดลงมาเต็มการ์ด */
+      flex-grow: 1;
+    }
+
+    .tax-table td {
+      vertical-align: middle;
+      padding: 5px;
+    }
+
+    .tax-table .note-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #F0F0F0;
+      background: #fff !important;
+    }
+
+    select { cursor: pointer; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header-container">
+      <div class="header-group">
+        <label>สาขา / สำนักงาน</label>
+        <input type="text" id="branchName">
+      </div>
+      <div class="header-group">
+        <label>วันที่ตรวจสอบ</label>
+        <input type="date" id="auditDate">
+      </div>
+      <div class="header-group">
+        <label>ผู้ตรวจสอบ</label>
+        <input type="text" id="auditorName">
+      </div>
+    </div>
+
+    <div class="tab-menu" style="pointer-events: none;">
+      <a class="tab-btn" href="#">หน้า 1: เงินสด & เช็ค</a>
+      <a class="tab-btn active" href="#">หน้า 2: ภาษี</a>
+      <a class="tab-btn" href="#">หน้า 3: การเงินและเอกสาร</a>
+      <a class="tab-btn" href="#">หน้า 4: ทั่วไป</a>
+    </div>
+
+    <div class="page2-grid">
+
+      <div class="card">
+        <div class="card-title no-stripe">เอกสารภาษีและการพิมพ์รายงาน</div>
+        <table style="width: 100%;">
+          <thead>
+            <tr style="background: #F6F8FF;">
+              <th style="width:45%; padding:15px; text-align:left; border-radius: 15px 0 0 15px;">รายการตรวจสอบ</th>
+              <th style="width:30%; text-align:center;">ข้อมูลวันที่/เดือน</th>
+              <th style="width:25%; text-align:center; border-radius: 0 15px 15px 0;">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1. ใบเสร็จรับเงินค่างวด ครบตามรายงาน</td>
+              <td align="center"><span style="color:#bbb; font-size:12px;">(ไม่ต้องระบุวัน)</span></td>
+              <td>
+                <select class="status-select">
+                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                </select>
+              </td>
+            </tr>
+            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+
+            <tr>
+              <td>2. สมุดรายวันรับ-จ่าย พิมพ์ถึงวันที่</td>
+              <td><input type="date" style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;"></td>
+              <td>
+                <select class="status-select">
+                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                </select>
+              </td>
+            </tr>
+            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+
+            <tr>
+              <td>3. รายงานรายได้ประจำเดือน ถึงเดือน</td>
+              <td>
+                <select style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;">
+                  <option value="">เลือกเดือน</option>
+                  <script>
+                    const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+                    months.forEach(m => document.write(`<option>${m}</option>`));
+                  </script>
+                </select>
+              </td>
+              <td>
+                <select class="status-select">
+                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                </select>
+              </td>
+            </tr>
+            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+
+            <tr>
+              <td>4. รายงานบัญชีลูกหนี้ประจำเดือน ถึงเดือน</td>
+              <td>
+                <select style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;">
+                  <option value="">เลือกเดือน</option>
+                  <script>months.forEach(m => document.write(`<option>${m}</option>`));</script>
+                </select>
+              </td>
+              <td>
+                <select class="status-select">
+                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                </select>
+              </td>
+            </tr>
+            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card tax-card">
+        <div class="card-title no-stripe">แบบยื่นภาษีและอากรแสตมป์</div>
+        <table class="tax-table">
+          <thead>
+            <tr style="background: #F6F8FF;">
+              <th style="width:20%; padding:15px; text-align:left; border-radius:15px 0 0 15px;">แบบภาษี</th>
+              <th style="width:25%; text-align:center;">รอบเดือน</th>
+              <th style="width:20%; text-align:center;">สถานะ</th>
+              <th style="width:35%; text-align:center; border-radius:0 15px 15px 0;">หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <script>
+              const taxForms = ["ภ.ง.ด.1", "ภ.ง.ด.2", "ภ.ง.ด.3", "ภ.ง.ด.53", "อส.4ข.", "ภ.ธ.40", "บัญชีคุมพิเศษ", "ประกันสังคม"];
+              
+              taxForms.forEach(form => {
+                document.write(`
+                  <tr>
+                    <td style="color:blue; font-weight:bold; padding-left:10px;">${form}</td>
+                    <td>
+                      <select style="width:100%; padding:8px; border-radius:10px; border:2px solid #F0F0F0;">
+                        <option value="">${form === 'อส.4ข.' ? 'เลือกงวด' : 'เดือน'}</option>
+                        ${form === 'อส.4ข.' 
+                          ? months.map(m => `<option>${m}/1</option><option>${m}/2</option>`).join('')
+                          : months.map(m => `<option>${m}</option>`).join('')
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select class="status-select">
+                        <option>ครบ</option>
+                        <option>ไม่ครบ</option>
+                        <option>ไม่มี</option>
+                      </select>
+                    </td>
+                    <td><input type="text" class="note-input"></td>
+                  </tr>
+                `);
+              });
+            </script>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-bottom: 50px;">
+      <a href="index.html" class="btn-back">← ย้อนกลับ (หน้า 1)</a>
+      <a href="page3.html" class="btn-next">หน้าถัดไป (หน้า 3: การเงินและเอกสาร) →</a>
+    </div>
+
+  </div>
+
+  <script>
+    // ระบบบันทึกและโหลดข้อมูล Header (สาขา, วันที่, ชื่อผู้ตรวจ) ข้ามหน้า
+    function saveHeaderData() {
+      localStorage.setItem('global_branch', document.getElementById('branchName').value);
+      localStorage.setItem('global_date', document.getElementById('auditDate').value);
+      localStorage.setItem('global_auditor', document.getElementById('auditorName').value);
+    }
+
+    function loadHeaderData() {
+      document.getElementById('branchName').value = localStorage.getItem('global_branch') || '';
+      document.getElementById('auditDate').value = localStorage.getItem('global_date') || '';
+      document.getElementById('auditorName').value = localStorage.getItem('global_auditor') || '';
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadHeaderData();
+      document.getElementById('branchName').addEventListener('input', saveHeaderData);
+      document.getElementById('auditDate').addEventListener('change', saveHeaderData);
+      document.getElementById('auditorName').addEventListener('input', saveHeaderData);
+    });
+  </script>
+</body>
+</html>

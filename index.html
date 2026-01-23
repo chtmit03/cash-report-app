@@ -2,157 +2,228 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <title>หน้า 1 - รายงานเงินสดและเช็ค</title>
+  
   <style>
-    body { font-family: 'Sarabun', sans-serif; background-color: #f5f5f5; padding: 20px; font-size: 14px; }
-    .form-page { background: white; padding: 40px; max-width: 850px; margin: auto; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-    td { padding: 5px; vertical-align: middle; }
-    input[type="text"], input[type="number"], input[type="date"], select { width: 100%; border: 1px solid #ccc; padding: 4px; box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
-    select.red-select { color: red; font-weight: bold; border: none; background: transparent; -webkit-appearance: none; cursor: pointer; }
-    .bg-gray { background-color: #f2f2f2; }
-    .border-black td { border: 1px solid black; }
-    .border-dotted td { border: 1px dotted #666; }
-    .text-red { color: red; font-weight: bold; }
-    .title { color: #003366; font-weight: bold; font-size: 18px; margin: 20px 0; }
-    .sum-box { border-bottom: 3px double black; font-weight: bold; display: inline-block; min-width: 80px; text-align: center; }
-    .input-fill { background-color: #f2f2f2; border: 1px solid #ccc !important; }
-    .status-display { background-color: #ddd; padding: 5px 15px; border: none; color: #003366; font-weight: bold; display: inline-block; }
-    .memo-line { background: transparent; border: none; height: 28px; width: 100%; display: block; }
-    .hr-dotted { border: 0.5px dotted #999; margin: 0; }
+    /* 1. ปรับสัดส่วนการ์ด: ซ้ายกว้าง ขวาแคบ */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr; /* ซ้ายกว้างกว่าขวา */
+      gap: 30px;
+    }
+
+    .cash-input { width: 140px; text-align: right; font-weight: bold; background: #fff !important; border-radius: 8px; border: 1px solid #ddd; padding: 8px; }
+    .denom-input { width: 80px; text-align: center; background: #fff !important; border-radius: 8px; border: 1px solid #ddd; padding: 5px; }
+    .denom-total { width: 100px; display: inline-block; text-align: right; font-weight: 700; color: #555; }
+    
+    /* 2. สไตล์ Result Box และ Badge สีเด่นๆ */
+    .result-box-purple {
+      background-color: #F0F2FF; 
+      border-radius: 20px;
+      padding: 25px;
+      margin-top: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .net-balance-value { font-size: 36px; font-weight: 900; color: #1a1a1a; }
+    
+    /* สถานะแบบสีเด่นพิเศษ */
+    .status-highlight {
+      padding: 10px 30px;
+      border-radius: 50px;
+      font-weight: 900;
+      font-size: 18px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .status-match-top { background-color: #28a745; color: white; } /* เขียวเด่น */
+    .status-mismatch-top { background-color: #dc3545; color: white; } /* แดงเด่น */
+    
+    /* 3. บันทึกเพิ่มเติมยาวเต็มบรรทัด */
+    .full-width-note {
+      width: 100%;
+      box-sizing: border-box; /* สำคัญ: เพื่อให้ padding ไม่ดันขอบทะลุการ์ด */
+      display: block;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid #F0F0F0;
+      font-family: 'Sarabun';
+      resize: vertical;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 25px;
+    }
+    
+    .tab-menu { pointer-events: none; }
+    select { background: #fff !important; border-radius: 8px; padding: 8px; border: 1px solid #ddd; }
   </style>
 </head>
+
 <body>
+  <div class="container">
 
-<div class="form-page">
-  <table style="width: 50%;">
-    <tr class="border-dotted"><td>สำนักงาน</td><td><input type="text" class="input-fill" placeholder="ระบุชื่อสำนักงาน"></td></tr>
-    <tr class="border-dotted"><td>วันที่เข้าตรวจ</td><td><input type="date" class="input-fill"></td></tr>
-    <tr class="border-dotted"><td>ผู้ตรวจ</td><td><input type="text" class="input-fill" placeholder="ระบุชื่อผู้ตรวจ"></td></tr>
-  </table>
-
-  <div class="title">การปฏิบัติงาน เพื่อความปลอดภัยและรอบคอบ ถูกต้อง</div>
-
-  <table style="width: 50%;" class="border-black">
-    <tr><td width="60%">ตู้นิรภัย</td><td><select class="red-select"><option>มี</option><option>ไม่มี</option></select></td></tr>
-    <tr><td>ลักษณะตู้นิรภัย</td><td><select class="red-select"><option>แบบหมุนรหัส</option><option>แบบดิจิทัล</option></select></td></tr>
-    <tr><td>การปิดล็อกด้วยรหัส</td><td><select class="red-select"><option>ปิดล็อกรหัสได้ปกติ</option><option>ปิดล็อกด้วยรหัสไม่ได้</option></select></td></tr>
-    <tr><td>การทดสอบการใช้งาน</td><td><select class="red-select"><option>ผ่านทุกคน</option><option>ผ่านบางคน</option><option>ไม่ผ่านทุกคน</option></select></td></tr>
-  </table>
-
-  <p>บันทึกเพิ่มเติม</p>
-  <div class="bg-gray" style="border: 1px solid #ccc; margin-bottom: 20px;">
-    <input type="text" class="memo-line">
-    <hr class="hr-dotted">
-    <input type="text" class="memo-line">
-    <hr class="hr-dotted">
-    <input type="text" class="memo-line">
-  </div>
-
-  <div class="title">เงินสดคงเหลือ</div>
-
-  <div style="display: flex; gap: 40px; align-items: flex-start; margin-bottom: 20px;">
-    <div style="flex: 1;">
-      <table class="border-black">
-        <tr><td width="50%">ยอดยกมา</td><td><input type="number" class="input-fill text-red" id="start_bal" oninput="calcAll()"></td></tr>
-        <tr><td>ยอดรับเงิน</td><td><input type="number" class="input-fill" id="receive_bal" oninput="calcAll()"></td></tr>
-        <tr><td>ยอดจ่ายเงิน</td><td><input type="number" class="input-fill" id="pay_bal" oninput="calcAll()"></td></tr>
-        <tr><td>ยอดจัดใหม่</td><td><input type="number" class="input-fill" id="adjust_bal" oninput="calcAll()"></td></tr>
-      </table>
-      <div style="margin-top: 20px;">
-        เงินสดคงเหลือ <span id="left_sum_display" class="sum-box text-red" style="margin-left: 50px;">0</span>
+    <div class="header-container">
+      <div class="header-group">
+        <label>สาขา / สำนักงาน</label>
+        <input type="text" id="branchName">
+      </div>
+      <div class="header-group">
+        <label>วันที่ตรวจสอบ</label>
+        <input type="date" id="auditDate">
+      </div>
+      <div class="header-group">
+        <label>ผู้ตรวจสอบ</label>
+        <input type="text" id="auditorName">
       </div>
     </div>
 
-    <div style="flex: 1.2;">
-      <table class="border-black">
-        <tr class="bg-gray"><td colspan="2">รายละเอียดเงินสดในมือ</td><td>รวมเงิน</td></tr>
-        <tr><td>1000</td><td><input type="number" id="q1000" oninput="calcAll()"></td><td id="t1000">0</td></tr>
-        <tr><td>500</td><td><input type="number" id="q500" oninput="calcAll()"></td><td id="t500">0</td></tr>
-        <tr><td>100</td><td><input type="number" id="q100" oninput="calcAll()"></td><td id="t100">0</td></tr>
-        <tr><td>50</td><td><input type="number" id="q50" oninput="calcAll()"></td><td id="t50">0</td></tr>
-        <tr><td>20</td><td><input type="number" id="q20" oninput="calcAll()"></td><td id="t20">0</td></tr>
-        <tr><td>10</td><td><input type="number" id="q10" oninput="calcAll()"></td><td id="t10">0</td></tr>
-        <tr><td>5</td><td><input type="number" id="q5" oninput="calcAll()"></td><td id="t5">0</td></tr>
-        <tr><td>2</td><td><input type="number" id="q2" oninput="calcAll()"></td><td id="t2">0</td></tr>
-        <tr><td>1</td><td><input type="number" id="q1" oninput="calcAll()"></td><td id="t1">0</td></tr>
-        <tr class="bg-gray"><td colspan="2" style="text-align: right;">รวมเงิน</td><td id="right_total" class="text-red sum-box">0</td></tr>
-      </table>
+    <div class="tab-menu">
+      <a href="#" class="tab-btn active">หน้า 1: เงินสด & เช็ค</a>
+      <a href="#" class="tab-btn">หน้า 2: ภาษี</a>
+      <a href="#" class="tab-btn">หน้า 3: การเงินและเอกสาร</a>
+      <a href="#" class="tab-btn">หน้า 4: ทั่วไป</a>
+    </div>
+
+    <div class="main-grid">
+      <div class="card">
+        <div class="card-title">สรุปเงินสดคงเหลือตามบัญชี</div>
+        <table style="width:100%;">
+          <tr><td>ยอดยกมา</td><td align="right"><input type="number" id="start_bal" class="cash-input" oninput="calc()" style="color:red;"></td></tr>
+          <tr><td>ยอดรับเงิน</td><td align="right"><input type="number" id="receive_bal" class="cash-input" oninput="calc()"></td></tr>
+          <tr><td>ยอดจ่ายเงิน</td><td align="right"><input type="number" id="pay_bal" class="cash-input" oninput="calc()"></td></tr>
+          <tr><td>ยอดจัดใหม่</td><td align="right"><input type="number" id="adjust_bal" class="cash-input" oninput="calc()"></td></tr>
+        </table>
+
+        <div class="result-box-purple">
+          <span style="font-weight:700; font-size: 18px; color: #555;">คงเหลือสุทธิ (NET BALANCE)</span>
+          <span class="net-balance-value" id="left_sum">0.00</span>
+          <div id="status_badge" class="status-highlight status-mismatch-top">ยอดเงินไม่ถูกต้อง</div>
+        </div>
+
+        <div style="margin-top: 25px; display:flex; align-items:center; justify-content:space-between;">
+          <label style="font-size: 16px; color: #ef0b0b; font-weight:800;">รหัสเงินเกิน (ยอดยกมาเกิน 7,000):</label>
+          <input type="text" class="cash-input" style="width: 150px; text-align: center;">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">นับเงินสดจริง</div>
+        <table id="denom_table" style="width:100%;"></table>
+        <div style="margin-top:15px; border-top:3px double #ddd; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:800; color:red; font-size:18px;">รวมเงินจริงสุทธิ</span>
+          <span style="font-weight:900; color:red; font-size:28px;" id="right_total">0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="card">
+        <div class="card-title">ตู้นิรภัย (Safe Box)</div>
+        <table style="width:100%;">
+          <tr><td>การติดตั้งตู้นิรภัย</td><td align="right"><select style="width:160px;"><option>มี</option><option>ไม่มี</option></select></td></tr>
+          <tr><td>ลักษณะรหัสผ่าน</td><td align="right"><select style="width:160px;"><option>แบบหมุนรหัส</option><option>แบบดิจิทัล</option></select></td></tr>
+          <tr><td>การปิดล็อคด้วยรหัส</td><td align="right"><select style="width:160px;"><option>ปกติ</option><option>ไม่ได้</option></select></td></tr>
+          <tr><td>การทดสอบการใช้งาน</td><td align="right"><select style="width:160px;"><option>ผ่านทุกคน</option><option>ผ่านบางคน</option><option>ไม่ผ่านทุกคน</option></select></td></tr>
+        </table>
+        <label style="display:block; margin-top:15px; font-weight:700;">บันทึกเพิ่มเติมตู้นิรภัย:</label>
+        <textarea class="full-width-note" rows="3" placeholder="กรอกรายละเอียด..."></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-title">การตรวจสอบรายการเช็ค</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span>รายงานจากฝ่ายการเงิน</span>
+          <span><input type="number" class="denom-input"> ฉบับ</span>
+        </div>
+        <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+          <span>สถานะตรวจสอบ:</span>
+          <select style="width:160px;"><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option></select>
+        </div>
+        <textarea class="full-width-note" rows="2" placeholder="บันทึกสถานะตรวจสอบ..."></textarea>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #EEE; padding-top:15px; margin-top:15px;">
+          <span style="font-weight:bold;">เช็คที่หมดอายุ</span>
+          <span><input type="number" class="denom-input"> ฉบับ</span>
+        </div>
+        <textarea class="full-width-note" rows="2" placeholder="บันทึกข้อมูลเช็คหมดอายุ..."></textarea>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 30px; padding-bottom: 50px;">
+      <a href="page2.html" class="btn-next">หน้าถัดไป (หน้า 2: ภาษี) →</a>
     </div>
   </div>
 
-  <div style="margin-bottom: 10px;">
-    <span class="text-red">รหัสเงินเกิน (กรณีเงินสดคงเหลือมาเกิน 7,000)</span>
-    <input type="text" class="input-fill" style="width: 100px; border: 1px solid black; margin-left: 10px; display: inline-block;">
-  </div>
-
-  <div style="margin-bottom: 5px;">
-    <div id="account_status" class="status-display">ตรงตามบัญชี</div>
-  </div>
-  
-  <div class="bg-gray" style="border: 1px solid #ccc; margin-bottom: 25px;">
-    <input type="text" class="memo-line">
-    <hr class="hr-dotted">
-    <input type="text" class="memo-line">
-  </div>
-
-  <div class="title" style="font-size: 16px;">เช็คประกอบการกู้ยืม</div>
-  
-  <table>
-    <tr>
-      <td width="25%">รายงานจากฝ่ายการเงิน</td>
-      <td width="20%"><input type="number" class="input-fill" style="width: 60px; display:inline-block;"> ฉบับ</td>
-      <td>ตรวจสอบแล้ว <select class="red-select" style="width: auto;"><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option></select></td>
-    </tr>
-  </table>
-  <div class="bg-gray" style="border: 1px solid #ccc; margin-bottom: 10px;">
-    <input type="text" class="memo-line">
-    <hr class="hr-dotted">
-    <input type="text" class="memo-line">
-  </div>
-  
-  <table>
-    <tr>
-      <td width="25%">รายการเช็คหมดอายุ</td>
-      <td><input type="number" class="input-fill" style="width: 60px; display:inline-block;"> ฉบับ</td>
-    </tr>
-  </table>
-  <div class="bg-gray" style="border: 1px solid #ccc;">
-    <input type="text" class="memo-line">
-    <hr class="hr-dotted">
-    <input type="text" class="memo-line">
-  </div>
-
-</div>
-
-<script>
-  function calcAll() {
-    let start = Number(document.getElementById('start_bal').value) || 0;
-    let receive = Number(document.getElementById('receive_bal').value) || 0;
-    let pay = Number(document.getElementById('pay_bal').value) || 0;
-    let adjust = Number(document.getElementById('adjust_bal').value) || 0;
-    let leftRes = (start + receive) - pay - adjust;
-    document.getElementById('left_sum_display').innerText = leftRes.toLocaleString();
+  <script>
+    function saveHeader() {
+      localStorage.setItem('global_branch', document.getElementById('branchName').value);
+      localStorage.setItem('global_date', document.getElementById('auditDate').value);
+      localStorage.setItem('global_auditor', document.getElementById('auditorName').value);
+    }
+    function loadHeader() {
+      document.getElementById('branchName').value = localStorage.getItem('global_branch') || '';
+      document.getElementById('auditorName').value = localStorage.getItem('global_auditor') || '';
+      const savedDate = localStorage.getItem('global_date');
+      if (savedDate) document.getElementById('auditDate').value = savedDate;
+      else document.getElementById('auditDate').valueAsDate = new Date();
+    }
 
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
-    let rightTotal = 0;
+    const table = document.getElementById('denom_table');
     denoms.forEach(d => {
-      let qty = document.getElementById('q' + d).value || 0;
-      let sum = qty * d;
-      document.getElementById('t' + d).innerText = sum.toLocaleString();
-      rightTotal += sum;
+      const row = table.insertRow();
+      row.innerHTML = `
+        <td style="font-weight:700; padding: 10px 5px;">${d.toLocaleString()} บาท</td>
+        <td align="center"><input type="number" id="q${d}" class="denom-input" value="0" oninput="calc()"></td>
+        <td align="right"><span id="t${d}" class="denom-total">0</span></td>
+      `;
     });
-    document.getElementById('right_total').innerText = rightTotal.toLocaleString();
 
-    let statusBox = document.getElementById('account_status');
-    if (leftRes === rightTotal) {
-      statusBox.innerText = "ตรงตามบัญชี";
-      statusBox.style.color = "#003366";
-    } else {
-      statusBox.innerText = "..ไม่ถูกต้อง..";
-      statusBox.style.color = "red";
+    function calc() {
+      const start = +document.getElementById('start_bal').value || 0;
+      const rec = +document.getElementById('receive_bal').value || 0;
+      const pay = +document.getElementById('pay_bal').value || 0;
+      const adj = +document.getElementById('adjust_bal').value || 0;
+      const left = (start + rec) - pay - adj;
+      document.getElementById('left_sum').innerText = left.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+      let right = 0;
+      denoms.forEach(d => {
+        const q = +document.getElementById('q' + d).value || 0;
+        const sum = q * d;
+        document.getElementById('t' + d).innerText = sum.toLocaleString();
+        right += sum;
+      });
+      document.getElementById('right_total').innerText = right.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+      const badge = document.getElementById('status_badge');
+      if (Math.abs(left - right) < 0.01 && (left !== 0 || right !== 0)) {
+        badge.innerText = "ยอดเงินตรงตามบัญชี";
+        badge.className = "status-highlight status-match-top";
+      } else {
+        badge.innerText = "ยอดเงินไม่ถูกต้อง";
+        badge.className = "status-highlight status-mismatch-top";
+      }
     }
-  }
-</script>
 
+    window.onload = () => {
+      loadHeader();
+      ['branchName','auditDate','auditorName'].forEach(id => {
+        document.getElementById(id).addEventListener('input', saveHeader);
+      });
+      calc();
+    };
+  </script>
 </body>
 </html>

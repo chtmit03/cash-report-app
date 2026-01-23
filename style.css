@@ -1,0 +1,200 @@
+/* style.css (ฉบับสมบูรณ์สำหรับหน้า 1 และ หน้า 2) */
+:root {
+  --primary-color: #5D5FEF;
+  --accent-red: #D32F2F;
+  --accent-green: #2E7D32;
+  --secondary-color: #F0F2F5;
+  --line: #EEF1F7;
+
+  --card-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
+  --shadow-soft: 0 8px 26px rgba(0,0,0,.08);
+  
+  --radius-pill: 999px;
+  --radius-card: 50px;
+  --radius-header: 45px;
+  --radius-input: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background-color: var(--secondary-color);
+  margin: 0;
+  padding: 20px;
+  color: #111;
+}
+
+.container { max-width: 1450px; margin: 0 auto; }
+
+/* =========================
+   HEADER
+   ========================= */
+.header-container {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 20px;
+  border: 1px solid #eef1f7;
+}
+
+.header-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 240px;
+}
+
+.header-group label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #222;
+}
+
+.header-group input {
+  width: 100%;
+  height: 52px;
+  padding: 0 18px;
+  border: 2px solid #F0F0F0;
+  border-radius: var(--radius-input);
+  background: #fff; /* ช่องเติมเป็นสีขาว */
+  outline: none;
+}
+
+/* =========================
+   TAB MENU (คลิกไม่ได้)
+   ========================= */
+.tab-menu {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  background: #E0E4EE;
+  padding: 10px;
+  border-radius: 30px;
+  pointer-events: none; /* ล็อกไม่ให้คลิก */
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 18px;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #777;
+}
+
+.tab-btn.active {
+  background: #fff;
+  color: var(--primary-color);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+/* =========================
+   CARD & TABLES
+   ========================= */
+.card {
+  background: #fff;
+  padding: 40px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 30px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ขีดข้างหน้าหัวข้อ */
+.card-title::before {
+  content: '';
+  width: 7px;
+  height: 26px;
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+/* คลาสพิเศษสำหรับหน้า 2: เอาขีดหน้าหัวข้อออก */
+.card-title.no-stripe::before {
+  display: none;
+}
+
+table { width: 100%; border-collapse: collapse; }
+td { padding: 14px 8px; border-bottom: 1px solid #F5F5F5; }
+
+/* ช่อง Input ทั้งหมด */
+input, select, textarea, .note-input {
+  background: #fff !important; /* บังคับพื้นหลังขาว */
+  border: 2px solid #F0F0F0;
+  border-radius: 12px;
+  font-family: 'Sarabun';
+  outline: none;
+}
+
+/* =========================
+   NAVIGATION BUTTONS (ปุ่มถัดไป/ย้อนกลับ)
+   ========================= */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-bottom: 50px;
+}
+
+.btn-next {
+  background: var(--primary-color);
+  color: #fff;
+  padding: 18px 45px;
+  border-radius: 22px;
+  font-size: 18px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(93, 95, 239, 0.3);
+  transition: 0.3s;
+}
+
+.btn-next:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(93, 95, 239, 0.4);
+}
+
+.btn-back {
+  background: #E0E4EE;
+  color: #666;
+  padding: 18px 35px;
+  border-radius: 22px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn-back:hover {
+  background: #D1D5E0;
+}
+
+/* =========================
+   OTHERS
+   ========================= */
+.main-grid, .page2-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 1100px){
+  .main-grid, .page2-grid { grid-template-columns: 1fr; }
+}
