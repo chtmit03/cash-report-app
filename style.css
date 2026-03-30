@@ -1,99 +1,119 @@
-/* style.css (ฉบับสมบูรณ์สำหรับหน้า 1 และ หน้า 2) */
+/* style.css (ฉบับรวมสมบูรณ์: รองรับทุกหน้า) */
 :root {
   --primary-color: #5D5FEF;
+  --primary-hover: #4a4cd9;
   --accent-red: #D32F2F;
   --accent-green: #2E7D32;
-  --secondary-color: #F0F2F5;
+  --secondary-color: #F4F7FE; /* ปรับให้สว่างนวลขึ้น */
   --line: #EEF1F7;
 
-  --card-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
-  --shadow-soft: 0 8px 26px rgba(0,0,0,.08);
+  --card-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  --shadow-soft: 0 8px 26px rgba(0,0,0,.05);
   
   --radius-pill: 999px;
-  --radius-card: 50px;
+  --radius-card: 40px; /* ปรับลดลงนิดหน่อยเพื่อให้ดูไม่มนเกินไปในจอเล็ก */
   --radius-header: 45px;
   --radius-input: 14px;
+
+  /* ✅ ใช้กับโหมด PDF exporting (html2pdf/html2canvas) */
+  --pdfViewport: 1200px;
+  --pdfScale: 1;
 }
 
-* { box-sizing: border-box; }
+* { 
+  box-sizing: border-box; 
+  transition: all 0.2s ease-in-out;
+}
 
 body {
   font-family: 'Sarabun', sans-serif;
   background-color: var(--secondary-color);
   margin: 0;
   padding: 20px;
-  color: #111;
+  color: #2D3436;
+  line-height: 1.6;
 }
 
-.container { max-width: 1450px; margin: 0 auto; }
+.container { 
+  max-width: 1400px; 
+  margin: 0 auto; 
+}
 
 /* =========================
-   HEADER
+   HEADER (แถบบนสุด)
    ========================= */
 .header-container {
   background: #fff;
-  padding: 30px 40px;
+  padding: 25px 40px;
   border-radius: var(--radius-pill);
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--shadow-soft);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 40px;
-  margin-bottom: 20px;
-  border: 1px solid #eef1f7;
+  gap: 30px;
+  margin-bottom: 25px;
+  border: 1px solid #fff;
 }
 
 .header-group {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 240px;
+  gap: 8px;
+  min-width: 200px;
 }
 
 .header-group label {
   font-size: 14px;
   font-weight: 800;
-  color: #222;
+  color: #636E72;
+  margin-left: 5px;
 }
 
 .header-group input {
   width: 100%;
-  height: 52px;
+  height: 50px;
   padding: 0 18px;
-  border: 2px solid #F0F0F0;
+  border: 2px solid #F0F2F5;
   border-radius: var(--radius-input);
-  background: #fff; /* ช่องเติมเป็นสีขาว */
-  outline: none;
+  background: #fff !important;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.header-group input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(93, 95, 239, 0.1);
 }
 
 /* =========================
-   TAB MENU (คลิกไม่ได้)
+   TAB MENU
    ========================= */
 .tab-menu {
   display: flex;
-  gap: 12px;
-  margin-bottom: 25px;
-  background: #E0E4EE;
-  padding: 10px;
-  border-radius: 30px;
-  pointer-events: none; /* ล็อกไม่ให้คลิก */
+  gap: 10px;
+  margin-bottom: 30px;
+  background: #E9EDF7;
+  padding: 8px;
+  border-radius: 25px;
+  pointer-events: none;
 }
 
 .tab-btn {
   flex: 1;
-  padding: 18px;
+  padding: 15px;
   text-align: center;
   text-decoration: none;
-  border-radius: 25px;
-  font-size: 16px;
+  border-radius: 20px;
+  font-size: 15px;
   font-weight: 700;
-  color: #777;
+  color: #8E94A7;
 }
 
 .tab-btn.active {
   background: #fff;
   color: var(--primary-color);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 /* =========================
@@ -101,100 +121,307 @@ body {
    ========================= */
 .card {
   background: #fff;
-  padding: 40px;
+  padding: 35px;
   border-radius: var(--radius-card);
   box-shadow: var(--card-shadow);
-  margin-bottom: 30px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(255,255,255,0.7);
 }
 
 .card-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  color: var(--primary-color);
+  color: #2D3436;
   margin-bottom: 25px;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* ขีดข้างหน้าหัวข้อ */
 .card-title::before {
   content: '';
-  width: 7px;
-  height: 26px;
+  width: 6px;
+  height: 24px;
   background: var(--primary-color);
   border-radius: 10px;
 }
 
-/* คลาสพิเศษสำหรับหน้า 2: เอาขีดหน้าหัวข้อออก */
-.card-title.no-stripe::before {
-  display: none;
+table { width: 100%; border-collapse: collapse; }
+td { padding: 12px 10px; border-bottom: 1px solid #F8FAFC; }
+tr:last-child td { border-bottom: none; }
+
+/* Input Elements */
+input[type="number"], input[type="text"], select, textarea {
+  background: #fff !important;
+  border: 2px solid #EDF2F7;
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-size: 15px;
+  color: #2D3436;
 }
 
-table { width: 100%; border-collapse: collapse; }
-td { padding: 14px 8px; border-bottom: 1px solid #F5F5F5; }
-
-/* ช่อง Input ทั้งหมด */
-input, select, textarea, .note-input {
-  background: #fff !important; /* บังคับพื้นหลังขาว */
-  border: 2px solid #F0F0F0;
-  border-radius: 12px;
-  font-family: 'Sarabun';
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary-color);
   outline: none;
 }
 
 /* =========================
-   NAVIGATION BUTTONS (ปุ่มถัดไป/ย้อนกลับ)
+   หน้า 1: เฉพาะส่วนคำนวณเงินสด
+   ========================= */
+.result-box-purple {
+  background: linear-gradient(135deg, #F0F2FF 0%, #E8EBFF 100%);
+  border-radius: 30px;
+  padding: 30px;
+  margin-top: 25px;
+  text-align: center;
+  border: 1px solid #DDE2FF;
+}
+
+.net-balance-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: #1A1A1A;
+  display: block;
+  margin: 10px 0;
+}
+
+.status-highlight {
+  display: inline-block;
+  padding: 10px 25px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.status-match-top { background: var(--accent-green); color: #fff; }
+.status-mismatch-top { background: var(--accent-red); color: #fff; }
+
+.diff-box {
+  font-weight: 800;
+  padding: 8px 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.diff-over { color: var(--accent-green); background: #E8F5E9; }
+.diff-short { color: var(--accent-red); background: #FFEBEE; }
+
+/* =========================
+   NAVIGATION & BUTTONS
    ========================= */
 .nav-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* ปรับให้ปุ่มไปทางขวา */
   align-items: center;
+  gap: 15px;
   margin-top: 20px;
   padding-bottom: 50px;
+}
+
+.btn-next, .btn-pdf, .btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 35px;
+  border-radius: 18px;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  font-family: 'Sarabun';
 }
 
 .btn-next {
   background: var(--primary-color);
   color: #fff;
-  padding: 18px 45px;
-  border-radius: 22px;
-  font-size: 18px;
-  font-weight: 800;
-  text-decoration: none;
-  box-shadow: 0 8px 20px rgba(93, 95, 239, 0.3);
-  transition: 0.3s;
+  box-shadow: 0 8px 20px rgba(93, 95, 239, 0.25);
 }
 
 .btn-next:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 25px rgba(93, 95, 239, 0.4);
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.btn-pdf {
+  background: var(--accent-green);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.2);
 }
 
 .btn-back {
-  background: #E0E4EE;
-  color: #666;
-  padding: 18px 35px;
-  border-radius: 22px;
-  font-size: 18px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: 0.3s;
+  background: #E2E8F0;
+  color: #475569;
 }
 
 .btn-back:hover {
-  background: #D1D5E0;
+  background: #CBD5E1;
 }
 
 /* =========================
-   OTHERS
+   RESPONSIVE
    ========================= */
-.main-grid, .page2-grid {
+.main-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 25px;
 }
 
-@media (max-width: 1100px){
-  .main-grid, .page2-grid { grid-template-columns: 1fr; }
+@media (max-width: 1100px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .header-container { border-radius: 30px; padding: 20px; }
+  .header-group { min-width: 100%; }
+}
+
+/* Utilities */
+.text-red { color: var(--accent-red); font-weight: 700; }
+.full-width-note { width: 100%; min-height: 80px; resize: vertical; }
+
+/* =========================
+   PDF / PRINT (A4) helpers
+   ไม่กระทบตอนดูหน้าเว็บ (มีผลตอน export/print เท่านั้น)
+   ========================= */
+@media print {
+  /* กันโดนย่อ/ซูมแปลก ๆ */
+  html, body {
+    background: #fff !important;
+  }
+
+  /* ให้คอนเทนต์กินหน้ากระดาษ A4 กว้างเต็ม */
+  .container {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    margin: 0 auto !important;
+  }
+
+  /* ห้ามตัดกลางการ์ด */
+  .card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* เผื่ออยากสั่งตัดหน้าเอง */
+  .page-break {
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+}
+
+/* =========================================================
+   ✅ เพิ่มเติมสำหรับโหมด PDF Export ผ่าน html2pdf/html2canvas
+   (ไม่กระทบตอนดูหน้าเว็บปกติ เพราะมีผลเฉพาะตอน body ได้คลาส pdf-exporting)
+   ========================================================= */
+body.pdf-exporting {
+  background: #ffffff !important;
+}
+
+/* ✅ ล็อก viewport ให้เหมือนหน้าเว็บ (กัน layout reflow ตอน export) */
+body.pdf-exporting,
+body.pdf-exporting .container {
+  width: var(--pdfViewport, 1200px) !important;
+  max-width: var(--pdfViewport, 1200px) !important;
+}
+
+/* ✅ scale ตามตัวแปรที่ JS ตั้ง เพื่อให้พอดี A4 */
+body.pdf-exporting .container {
+  transform: scale(var(--pdfScale, 1));
+  transform-origin: top left;
+}
+
+/* ✅ กันตัดกลางการ์ดตอน html2canvas แคป */
+body.pdf-exporting .card {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* ✅ เผื่อมี element fixed/sticky โผล่ใน PDF (ถ้ามี จะคุมได้) */
+body.pdf-exporting [data-pdf-hide="true"] {
+  display: none !important;
+}
+/* ✅ กัน PDF เบี้ยว/เยื้อง เพราะ body มี padding และ container margin auto */
+body.pdf-exporting {
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+body.pdf-exporting .container {
+  margin: 0 !important;          /* ✅ ไม่จัดกลางตอน export */
+  max-width: none !important;    /* ✅ กัน max-width ทำให้คำนวณกว้างผิด */
+}
+/* ======================================================
+   PDF MODE GLOBAL (ใช้ทุกหน้า)
+   ทำงานเฉพาะตอน export PDF เท่านั้น
+   ====================================================== */
+
+body.pdf-exporting {
+  background:#fff !important;
+}
+
+body.pdf-exporting *{
+  transition:none !important;
+}
+
+/* 🔥 ล็อกความกว้าง viewport */
+body.pdf-exporting,
+body.pdf-exporting .container{
+  width:1200px !important;
+  max-width:1200px !important;
+  margin:0 auto !important;
+}
+
+/* ======================================================
+   ⭐ แก้ปัญหาหลัก: ห้าม 2 คอลัมน์ใน PDF
+   ====================================================== */
+body.pdf-exporting .page2-grid,
+body.pdf-exporting .page3-grid,
+body.pdf-exporting .two-column-layout{
+  grid-template-columns: 1fr !important;
+}
+
+/* หน้า 4 ใช้ left/right stacked */
+body.pdf-exporting .left-stacked,
+body.pdf-exporting .right-stacked{
+  width:100% !important;
+}
+
+/* ======================================================
+   ⭐ ป้องกันตารางล้นขอบ
+   ====================================================== */
+body.pdf-exporting table{
+  width:100% !important;
+  table-layout:fixed !important;
+}
+
+body.pdf-exporting th,
+body.pdf-exporting td{
+  word-break:break-word !important;
+  overflow-wrap:anywhere !important;
+}
+
+/* ======================================================
+   ⭐ ให้การ์ดไม่โดนตัดกลางหน้า
+   ====================================================== */
+body.pdf-exporting .card{
+  break-inside:avoid !important;
+  page-break-inside:avoid !important;
+}
+
+/* ======================================================
+   ⭐ ถ้าเนื้อหายาว → ลงหน้าใหม่ด้านล่างเท่านั้น
+   ====================================================== */
+body.pdf-exporting .container{
+  page-break-after:always;
+}
+
+/* ======================================================
+   ⭐ ลดขนาดฟอนต์เฉพาะ PDF ให้พอดี A4
+   ====================================================== */
+body.pdf-exporting{
+  font-size:14px !important;
+}
+
+body.pdf-exporting .report-table,
+body.pdf-exporting .tax-table{
+  font-size:12px !important;
 }

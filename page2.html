@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <title>หน้า 2 - ภาษีและการพิมพ์รายงาน</title>
-  
+
   <style>
     /* ปรับแต่ง Dropdown สถานะ */
     .status-select {
-      color: var(--accent-red);
+      color: #000; /* ✅ ข้อความในตัวเลือกเป็นสีดำ */
       font-weight: 800;
       width: 100%;
       text-align-last: center;
@@ -19,6 +22,21 @@
       border: 2px solid #F0F0F0;
       background: #fff !important;
     }
+
+    /* ✅ ตอนยังไม่เลือก ให้เป็นจางๆ */
+    .status-select.is-placeholder { color: #9aa0a6; }
+
+    /* ✅ รายการตัวเลือกทั้งหมดเป็นสีดำ */
+    .status-select option { color: #000; }
+
+    .req-star{
+      color:#cf1322;
+      font-size:12px;
+      font-weight:800;
+      margin-left:3px;
+      vertical-align:top;
+    }
+
 
     /* ปรับช่องหมายเหตุฝั่งซ้ายให้เต็มบรรทัด */
     .full-width-note {
@@ -31,6 +49,15 @@
       background: #fff !important;
       display: block;
       font-family: 'Sarabun';
+      box-sizing: border-box;
+    }
+
+    /* ✅ ให้ช่องรายละเอียดขยาย/หดตามข้อความ */
+    textarea.full-width-note,
+    textarea.note-input {
+      resize: none;
+      overflow: hidden;
+      line-height: 1.4;
     }
 
     /* จัดการให้การ์ดฝั่งขวายืดเต็มความสูง */
@@ -38,18 +65,15 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 30px;
-      align-items: stretch; /* ให้การ์ดสูงเท่ากัน */
+      align-items: stretch;
     }
 
-    .tax-card {
-      display: flex;
-      flex-direction: column;
-    }
+    .tax-card { display: flex; flex-direction: column; }
 
     .tax-table {
       width: 100%;
       border-collapse: separate;
-      border-spacing: 0 12px; /* เพิ่มระยะห่างแถวเพื่อให้ตารางยืดลงมาเต็มการ์ด */
+      border-spacing: 0 12px;
       flex-grow: 1;
     }
 
@@ -64,27 +88,70 @@
       border-radius: 12px;
       border: 2px solid #F0F0F0;
       background: #fff !important;
+      display: block;
+      font-family: 'Sarabun';
+      box-sizing: border-box;
     }
 
     select { cursor: pointer; }
+
+    /* ปุ่ม Footer เพิ่มเติม */
+    .btn-pdf {
+      background: #27ae60;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 15px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+      margin-right: 10px;
+      font-family: 'Sarabun';
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-back { background-color: #e2e8f0; color: #475569; padding: 12px 25px; border-radius: 15px; text-decoration: none; font-weight: 700; }
+
+    body.pdf-exporting { background:#fff !important; }
+    body.pdf-exporting * { transition: none !important; }
+
+    body.pdf-exporting,
+    body.pdf-exporting .container{
+      width: var(--pdfViewport, 1200px) !important;
+      max-width: var(--pdfViewport, 1200px) !important;
+    }
+
+    body.pdf-exporting .container {
+      transform: scale(var(--pdfScale, 1));
+      transform-origin: top left;
+      margin: 0 auto !important;
+    }
+
+    body.pdf-exporting .card{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
   </style>
 </head>
 
 <body>
+
+  <input type="text" style="position:absolute;top:-9999px;left:-9999px;">
+  <input type="password" style="position:absolute;top:-9999px;left:-9999px;">
+
   <div class="container">
 
     <div class="header-container">
       <div class="header-group">
-        <label>สาขา / สำนักงาน</label>
-        <input type="text" id="branchName">
+        <label>สาขา / สำนักงาน <span class="req-star">*</span></label>
+        <input type="text" id="branchName" readonly data-fixed-header="true">
       </div>
       <div class="header-group">
-        <label>วันที่ตรวจสอบ</label>
-        <input type="date" id="auditDate">
+        <label>วันที่ตรวจสอบ <span class="req-star">*</span></label>
+        <input type="date" id="auditDate" readonly data-fixed-header="true">
       </div>
       <div class="header-group">
-        <label>ผู้ตรวจสอบ</label>
-        <input type="text" id="auditorName">
+        <label>ผู้ตรวจสอบ <span class="req-star">*</span></label>
+        <input type="text" id="auditorName" readonly data-fixed-header="true">
       </div>
     </div>
 
@@ -99,71 +166,103 @@
 
       <div class="card">
         <div class="card-title no-stripe">เอกสารภาษีและการพิมพ์รายงาน</div>
-        <table style="width: 100%;">
+        <table style="width: 100%;" id="report-table">
           <thead>
             <tr style="background: #F6F8FF;">
               <th style="width:45%; padding:15px; text-align:left; border-radius: 15px 0 0 15px;">รายการตรวจสอบ</th>
-              <th style="width:30%; text-align:center;">ข้อมูลวันที่/เดือน</th>
-              <th style="width:25%; text-align:center; border-radius: 0 15px 15px 0;">สถานะ</th>
+              <th style="width:30%; text-align:center;">ข้อมูลวันที่/เดือน <span class="req-star">*</span></th>
+              <th style="width:25%; text-align:center; border-radius: 0 15px 15px 0;">สถานะ <span class="req-star">*</span></th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>1. ใบเสร็จรับเงินค่างวด ครบตามรายงาน</td>
+              <td>1. ใบเสร็จรับเงินค่างวด ครบตามรายงาน <span class="req-star">*</span></td>
               <td align="center"><span style="color:#bbb; font-size:12px;">(ไม่ต้องระบุวัน)</span></td>
               <td>
-                <select class="status-select">
-                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                <select class="status-select" id="report_1_status" name="report_1_status" onchange="savePage2Data(); applySelectPlaceholderStyle(this);">
+                  <option value="" selected>เลือก...</option>
+                  <option value="ครบ">ครบ</option>
+                  <option value="ไม่ครบ">ไม่ครบ</option>
+                  <option value="ถูกต้อง">ถูกต้อง</option>
+                  <option value="ไม่ถูกต้อง">ไม่ถูกต้อง</option>
                 </select>
               </td>
             </tr>
-            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+            <tr>
+              <td colspan="3">
+                <textarea id="report_1_note" name="report_1_note" class="full-width-note auto-grow" rows="1" oninput="autoGrow(this); savePage2Data()"></textarea>
+              </td>
+            </tr>
 
             <tr>
-              <td>2. สมุดรายวันรับ-จ่าย พิมพ์ถึงวันที่</td>
-              <td><input type="date" style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;"></td>
+              <td>2. สมุดรายวันรับ-จ่าย พิมพ์ถึงวันที่ <span class="req-star">*</span></td>
+              <td><input type="date" id="report_2_date" style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;" onchange="savePage2Data()"></td>
               <td>
-                <select class="status-select">
-                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                <select class="status-select" id="report_2_status" onchange="savePage2Data(); applySelectPlaceholderStyle(this);">
+                  <option value="" selected>เลือก...</option>
+                  <option value="ครบ">ครบ</option>
+                  <option value="ไม่ครบ">ไม่ครบ</option>
+                  <option value="ถูกต้อง">ถูกต้อง</option>
+                  <option value="ไม่ถูกต้อง">ไม่ถูกต้อง</option>
                 </select>
               </td>
             </tr>
-            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+            <tr>
+              <td colspan="3">
+                <textarea id="report_2_note" class="full-width-note auto-grow" rows="1" oninput="autoGrow(this); savePage2Data()"></textarea>
+              </td>
+            </tr>
 
             <tr>
-              <td>3. รายงานรายได้ประจำเดือน ถึงเดือน</td>
+              <td>3. รายงานรายได้ประจำเดือน ถึงเดือน <span class="req-star">*</span></td>
               <td>
-                <select style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;">
+                <select id="report_3_month" style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;" onchange="savePage2Data()">
                   <option value="">เลือกเดือน</option>
                   <script>
-                    const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-                    months.forEach(m => document.write(`<option>${m}</option>`));
+                    window.months = window.months || ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+                    window.months.forEach(m => document.write(`<option value="${m}">${m}</option>`));
                   </script>
                 </select>
               </td>
               <td>
-                <select class="status-select">
-                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                <select class="status-select" id="report_3_status" onchange="savePage2Data(); applySelectPlaceholderStyle(this);">
+                  <option value="" selected>เลือก...</option>
+                  <option value="ครบ">ครบ</option>
+                  <option value="ไม่ครบ">ไม่ครบ</option>
+                  <option value="ถูกต้อง">ถูกต้อง</option>
+                  <option value="ไม่ถูกต้อง">ไม่ถูกต้อง</option>
                 </select>
               </td>
             </tr>
-            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+            <tr>
+              <td colspan="3">
+                <textarea id="report_3_note" class="full-width-note auto-grow" rows="1" oninput="autoGrow(this); savePage2Data()"></textarea>
+              </td>
+            </tr>
 
             <tr>
-              <td>4. รายงานบัญชีลูกหนี้ประจำเดือน ถึงเดือน</td>
+              <td>4. รายงานบัญชีลูกหนี้ประจำเดือน ถึงเดือน <span class="req-star">*</span></td>
               <td>
-                <select style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;">
+                <select id="report_4_month" style="width:100%; padding:10px; border-radius:12px; border:2px solid #F0F0F0;" onchange="savePage2Data()">
                   <option value="">เลือกเดือน</option>
-                  <script>months.forEach(m => document.write(`<option>${m}</option>`));</script>
+                  <script>window.months.forEach(m => document.write(`<option value="${m}">${m}</option>`));</script>
                 </select>
               </td>
               <td>
-                <select class="status-select">
-                  <option>ครบ</option><option>ไม่ครบ</option><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option>
+                <select class="status-select" id="report_4_status" onchange="savePage2Data(); applySelectPlaceholderStyle(this);">
+                  <option value="" selected>เลือก...</option>
+                  <option value="ครบ">ครบ</option>
+                  <option value="ไม่ครบ">ไม่ครบ</option>
+                  <option value="ถูกต้อง">ถูกต้อง</option>
+                  <option value="ไม่ถูกต้อง">ไม่ถูกต้อง</option>
                 </select>
               </td>
             </tr>
-            <tr><td colspan="3"><input type="text" class="full-width-note"></td></tr>
+            <tr>
+              <td colspan="3">
+                <textarea id="report_4_note" class="full-width-note auto-grow" rows="1" oninput="autoGrow(this); savePage2Data()"></textarea>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -174,72 +273,484 @@
           <thead>
             <tr style="background: #F6F8FF;">
               <th style="width:20%; padding:15px; text-align:left; border-radius:15px 0 0 15px;">แบบภาษี</th>
-              <th style="width:25%; text-align:center;">รอบเดือน</th>
-              <th style="width:20%; text-align:center;">สถานะ</th>
+              <th style="width:25%; text-align:center;">รอบเดือน <span class="req-star">*</span></th>
+              <th style="width:20%; text-align:center;">สถานะ <span class="req-star">*</span></th>
               <th style="width:35%; text-align:center; border-radius:0 15px 15px 0;">หมายเหตุ</th>
             </tr>
           </thead>
           <tbody>
             <script>
+              window.months = window.months || ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
               const taxForms = ["ภ.ง.ด.1", "ภ.ง.ด.2", "ภ.ง.ด.3", "ภ.ง.ด.53", "อส.4ข.", "ภ.ธ.40", "บัญชีคุมพิเศษ", "ประกันสังคม"];
-              
-              taxForms.forEach(form => {
+
+              taxForms.forEach((form, index) => {
+                const safeFormName = `tax_${index}`;
                 document.write(`
                   <tr>
                     <td style="color:blue; font-weight:bold; padding-left:10px;">${form}</td>
                     <td>
-                      <select style="width:100%; padding:8px; border-radius:10px; border:2px solid #F0F0F0;">
+                      <select id="${safeFormName}_month" style="width:100%; padding:8px; border-radius:10px; border:2px solid #F0F0F0;" onchange="savePage2Data()">
                         <option value="">${form === 'อส.4ข.' ? 'เลือกงวด' : 'เดือน'}</option>
-                        ${form === 'อส.4ข.' 
-                          ? months.map(m => `<option>${m}/1</option><option>${m}/2</option>`).join('')
-                          : months.map(m => `<option>${m}</option>`).join('')
+                        ${
+                          form === 'อส.4ข.'
+                            ? window.months.map(m => `<option value="${m}/1">${m}/1</option><option value="${m}/2">${m}/2</option>`).join('')
+                            : window.months.map(m => `<option value="${m}">${m}</option>`).join('')
                         }
                       </select>
                     </td>
                     <td>
-                      <select class="status-select">
-                        <option>ครบ</option>
-                        <option>ไม่ครบ</option>
-                        <option>ไม่มี</option>
+                      <select id="${safeFormName}_status" class="status-select" onchange="savePage2Data(); applySelectPlaceholderStyle(this);">
+                        <option value="" selected>เลือก...</option>
+                        <option value="ครบ">ครบ</option>
+                        <option value="ไม่ครบ">ไม่ครบ</option>
+                        <option value="ไม่มี">ไม่มี</option>
                       </select>
                     </td>
-                    <td><input type="text" class="note-input"></td>
+                    <td>
+                      <textarea id="${safeFormName}_note" class="note-input auto-grow" rows="1" oninput="autoGrow(this); savePage2Data()"></textarea>
+                    </td>
                   </tr>
                 `);
               });
+
+              window.taxForms = taxForms;
             </script>
           </tbody>
         </table>
       </div>
     </div>
 
-    <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-bottom: 50px;">
-      <a href="index.html" class="btn-back">← ย้อนกลับ (หน้า 1)</a>
-      <a href="page3.html" class="btn-next">หน้าถัดไป (หน้า 3: การเงินและเอกสาร) →</a>
+    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 30px; padding-bottom: 50px;">
+      <a href="javascript:void(0);" onclick="goBack()" class="btn-back" style="margin-right: auto;">← ย้อนกลับ (หน้า 1)</a>
+      <a href="javascript:void(0);" onclick="goNext()" class="btn-next">หน้าถัดไป (หน้า 3: การเงินและเอกสาร) →</a>
     </div>
 
   </div>
 
   <script>
-    // ระบบบันทึกและโหลดข้อมูล Header (สาขา, วันที่, ชื่อผู้ตรวจ) ข้ามหน้า
-    function saveHeaderData() {
-      localStorage.setItem('global_branch', document.getElementById('branchName').value);
-      localStorage.setItem('global_date', document.getElementById('auditDate').value);
-      localStorage.setItem('global_auditor', document.getElementById('auditorName').value);
+    function autoGrow(el) {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = (el.scrollHeight) + "px";
+    }
+    function initAutoGrow() {
+      document.querySelectorAll("textarea.auto-grow").forEach(t => autoGrow(t));
     }
 
+    function applySelectPlaceholderStyle(sel) {
+      if (!sel) return;
+      if (sel.value === "") sel.classList.add("is-placeholder");
+      else sel.classList.remove("is-placeholder");
+    }
+    function initStatusSelects() {
+      document.querySelectorAll("select.status-select").forEach(applySelectPlaceholderStyle);
+    }
     function loadHeaderData() {
-      document.getElementById('branchName').value = localStorage.getItem('global_branch') || '';
-      document.getElementById('auditDate').value = localStorage.getItem('global_date') || '';
-      document.getElementById('auditorName').value = localStorage.getItem('global_auditor') || '';
+      document.getElementById('branchName').value = sessionStorage.getItem('global_branch') || '';
+      document.getElementById('auditDate').value = sessionStorage.getItem('global_date') || '';
+      document.getElementById('auditorName').value = sessionStorage.getItem('global_auditor') || '';
+    }
+
+    function savePage2Data() {
+      const data = {};
+
+      const report1Status = document.getElementById('report_1_status');
+      const report1Note = document.getElementById('report_1_note');
+
+      data.report_1_status = report1Status ? (report1Status.value || "") : "";
+      data.report_1_note = report1Note ? (report1Note.value || "") : "";
+
+      if (report1Status) applySelectPlaceholderStyle(report1Status);
+
+      for(let i=2; i<=4; i++) {
+        const s = document.getElementById(`report_${i}_status`);
+        const n = document.getElementById(`report_${i}_note`);
+
+        if (s) {
+          data[`report_${i}_status`] = s.value || "";
+          applySelectPlaceholderStyle(s);
+        }
+        if (n) data[`report_${i}_note`] = n.value || "";
+
+        if(document.getElementById(`report_${i}_date`)) data[`report_${i}_date`] = document.getElementById(`report_${i}_date`).value || "";
+        if(document.getElementById(`report_${i}_month`)) data[`report_${i}_month`] = document.getElementById(`report_${i}_month`).value || "";
+      }
+
+      const forms = window.taxForms || ["ภ.ง.ด.1", "ภ.ง.ด.2", "ภ.ง.ด.3", "ภ.ง.ด.53", "อส.4ข.", "ภ.ธ.40", "บัญชีคุมพิเศษ", "ประกันสังคม"];
+      forms.forEach((form, index) => {
+        const id = `tax_${index}`;
+        const m = document.getElementById(`${id}_month`);
+        const s = document.getElementById(`${id}_status`);
+        const n = document.getElementById(`${id}_note`);
+
+        if (m) data[`${id}_month`] = m.value;
+        if (s) {
+          data[`${id}_status`] = s.value;
+          applySelectPlaceholderStyle(s);
+        }
+        if (n) data[`${id}_note`] = n.value || "";
+
+        data[`${id}_label`] = form;
+      });
+      console.log('savePage2Data =', data);
+      sessionStorage.setItem('page2_cache', JSON.stringify(data));
+    }
+
+    function loadPage2Data() {
+      const saved = sessionStorage.getItem('page2_cache');
+      if (!saved) return;
+      const data = JSON.parse(saved);
+
+      const report1Status = document.getElementById('report_1_status');
+      const report1Note = document.getElementById('report_1_note');
+
+      if (report1Status) {
+        report1Status.value = (data.report_1_status ?? "");
+        applySelectPlaceholderStyle(report1Status);
+      }
+      if (report1Note) report1Note.value = (data.report_1_note ?? "");
+
+      for(let i=2; i<=4; i++) {
+        const s = document.getElementById(`report_${i}_status`);
+        const n = document.getElementById(`report_${i}_note`);
+
+        if (s) {
+          s.value = (data[`report_${i}_status`] ?? "");
+          applySelectPlaceholderStyle(s);
+        }
+        if (n) n.value = (data[`report_${i}_note`] ?? "");
+
+        if (document.getElementById(`report_${i}_date`)) document.getElementById(`report_${i}_date`).value = (data[`report_${i}_date`] ?? "");
+        if (document.getElementById(`report_${i}_month`)) document.getElementById(`report_${i}_month`).value = (data[`report_${i}_month`] ?? "");
+      }
+
+      const forms = window.taxForms || ["ภ.ง.ด.1", "ภ.ง.ด.2", "ภ.ง.ด.3", "ภ.ง.ด.53", "อส.4ข.", "ภ.ธ.40", "บัญชีคุมพิเศษ", "ประกันสังคม"];
+      forms.forEach((form, index) => {
+        const id = `tax_${index}`;
+        const m = document.getElementById(`${id}_month`);
+        const s = document.getElementById(`${id}_status`);
+        const n = document.getElementById(`${id}_note`);
+
+        if (m) m.value = (data[`${id}_month`] ?? "");
+        if (s) {
+          s.value = (data[`${id}_status`] ?? "");
+          applySelectPlaceholderStyle(s);
+        }
+        if (n) n.value = (data[`${id}_note`] ?? "");
+      });
+
+      initAutoGrow();
+    }
+
+
+    function validatePage2ForFinalActions() {
+      const header = {
+        branch: sessionStorage.getItem('global_branch') || '',
+        date: sessionStorage.getItem('global_date') || '',
+        auditor: sessionStorage.getItem('global_auditor') || ''
+      };
+
+      if (!header.branch.trim()) {
+        alert('กรุณากรอกข้อมูลหน้า 1 ให้ครบก่อนบันทึก พรีวิว หรือดาวน์โหลด PDF\nยังไม่ได้กรอก: สาขา / สำนักงาน');
+        return false;
+      }
+      if (!header.date.trim()) {
+        alert('กรุณากรอกข้อมูลหน้า 1 ให้ครบก่อนบันทึก พรีวิว หรือดาวน์โหลด PDF\nยังไม่ได้กรอก: วันที่ตรวจสอบ');
+        return false;
+      }
+      if (!header.auditor.trim()) {
+        alert('กรุณากรอกข้อมูลหน้า 1 ให้ครบก่อนบันทึก พรีวิว หรือดาวน์โหลด PDF\nยังไม่ได้กรอก: ผู้ตรวจสอบ');
+        return false;
+      }
+
+      const data = JSON.parse(sessionStorage.getItem('page2_cache') || '{}');
+
+      const requiredPage2 = [
+        { key: 'report_1_status', label: 'ใบเสร็จรับเงินค่างวด ครบตามรายงาน - สถานะ' },
+        { key: 'report_2_date', label: 'สมุดรายวันรับ-จ่าย พิมพ์ถึงวันที่' },
+        { key: 'report_2_status', label: 'สมุดรายวันรับ-จ่าย - สถานะ' },
+        { key: 'report_3_month', label: 'รายงานรายได้ประจำเดือน ถึงเดือน' },
+        { key: 'report_3_status', label: 'รายงานรายได้ประจำเดือน - สถานะ' },
+        { key: 'report_4_month', label: 'รายงานบัญชีลูกหนี้ประจำเดือน ถึงเดือน' },
+        { key: 'report_4_status', label: 'รายงานบัญชีลูกหนี้ประจำเดือน - สถานะ' }
+      ];
+
+      for (const item of requiredPage2) {
+        const value = (data[item.key] || '').toString().trim();
+        if (value === '') {
+          alert('กรุณากรอกข้อมูลหน้า 2 ให้ครบก่อนบันทึก พรีวิว หรือดาวน์โหลด PDF\nยังไม่ได้กรอก: ' + item.label);
+          return false;
+        }
+      }
+
+      const forms = window.taxForms || ['ภ.ง.ด.1', 'ภ.ง.ด.2', 'ภ.ง.ด.3', 'ภ.ง.ด.53', 'อส.4ข.', 'ภ.ธ.40', 'บัญชีคุมพิเศษ', 'ประกันสังคม'];
+      for (let index = 0; index < forms.length; index++) {
+        const id = `tax_${index}`;
+        const monthVal = (data[`${id}_month`] || '').toString().trim();
+        const statusVal = (data[`${id}_status`] || '').toString().trim();
+
+        if (monthVal === '') {
+          alert('กรุณากรอกข้อมูลหน้า 2 ให้ครบก่อนบันทึก พรีวิว หรือดาวน์โหลด PDF\nยังไม่ได้กรอก: ' + forms[index] + ' - รอบเดือน');
+          return false;
+        }
+        if (statusVal === '') {
+          alert('กรุณากรอกข้อมูลหน้า 2 ให้ครบก่อนบันทึก พรีวิว หรือดาวน์โหลด PDF\nยังไม่ได้กรอก: ' + forms[index] + ' - สถานะ');
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function buildPdfElement() {
+      savePage2Data();
+
+      const branch = sessionStorage.getItem('global_branch') || 'ไม่ระบุ';
+      const date = sessionStorage.getItem('global_date') || 'ไม่ระบุ';
+      const auditor = sessionStorage.getItem('global_auditor') || 'ไม่ระบุ';
+
+      const p1 = JSON.parse(sessionStorage.getItem('page1_cache') || '{}');
+      const p2 = JSON.parse(sessionStorage.getItem('page2_cache') || '{}');
+
+      const element = document.createElement('div');
+      element.style.padding = '30px';
+      element.style.fontFamily = "'Sarabun', sans-serif";
+
+      let taxRows = "";
+      const forms = window.taxForms || ["ภ.ง.ด.1", "ภ.ง.ด.2", "ภ.ง.ด.3", "ภ.ง.ด.53", "อส.4ข.", "ภ.ธ.40", "บัญชีคุมพิเศษ", "ประกันสังคม"];
+      forms.forEach((form, index) => {
+        const id = `tax_${index}`;
+        taxRows += `
+          <tr>
+            <td style="padding:5px; border:1px solid #ddd;">${form}</td>
+            <td style="padding:5px; border:1px solid #ddd; text-align:center;">${p2[id+'_month'] || '-'}</td>
+            <td style="padding:5px; border:1px solid #ddd; text-align:center;">${p2[id+'_status'] || '-'}</td>
+            <td style="padding:5px; border:1px solid #ddd;">${p2[id+'_note'] || '-'}</td>
+          </tr>
+        `;
+      });
+
+      element.innerHTML = `
+        <div style="text-align: center;">
+          <h1 style="color: #1a237e;">รายงานผลการตรวจสอบ (หน้า 1-2)</h1>
+          <p>สาขา: <b>${branch}</b> | วันที่: <b>${date}</b> | ผู้ตรวจสอบ: <b>${auditor}</b></p>
+        </div>
+        <hr>
+        <h3>ส่วนที่ 1: สรุปเงินสด</h3>
+        <p>คงเหลือสุทธิ (บัญชี): <b>${p1.left_sum || '0.00'}</b> | เงินจริงสุทธิ: <b>${p1.right_total || '0.00'}</b></p>
+
+        <h3 style="margin-top:20px;">ส่วนที่ 2: ภาษีและการพิมพ์รายงาน</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr style="background:#f2f2f2;">
+            <th style="border:1px solid #ddd; padding:5px;">แบบภาษี</th>
+            <th style="border:1px solid #ddd; padding:5px;">รอบเดือน <span class="req-star">*</span></th>
+            <th style="border:1px solid #ddd; padding:5px;">สถานะ</th>
+            <th style="border:1px solid #ddd; padding:5px;">หมายเหตุ</th>
+          </tr>
+          ${taxRows}
+        </table>
+        <p style="margin-top:20px; font-size:12px; color:gray;">* กรุณากรอกข้อมูลหน้า 3-4 ให้ครบถ้วนเพื่อให้รายงานสมบูรณ์</p>
+      `;
+
+      return { element, branch };
+    }
+
+    function generatePDF() {
+      const { element, branch } = buildPdfElement();
+      const opt = {
+        margin: 10,
+        filename: `Audit_Report_${branch}_Page2.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    function goBack() {
+      savePage2Data();
+      window.location.href = "index.html";
+    }
+
+    function goNext() {
+      savePage2Data();
+      window.location.href = "page3.html";
     }
 
     window.addEventListener("DOMContentLoaded", () => {
       loadHeaderData();
-      document.getElementById('branchName').addEventListener('input', saveHeaderData);
-      document.getElementById('auditDate').addEventListener('change', saveHeaderData);
-      document.getElementById('auditorName').addEventListener('input', saveHeaderData);
+      loadPage2Data();
+
+      initStatusSelects();
+      initAutoGrow();
+      savePage2Data();
     });
+
+    window.addEventListener("beforeunload", () => {
+      savePage2Data();
+    });
+
+    function waitForAssetsInDoc(doc){
+      const promises = [];
+      const imgs = Array.from(doc.images || []);
+      imgs.forEach(img=>{
+        if(!img.complete){
+          promises.push(new Promise(res=>{
+            img.onload = ()=>res();
+            img.onerror = ()=>res();
+          }));
+        }
+      });
+      if (doc.fonts && doc.fonts.ready) {
+        promises.push(doc.fonts.ready.catch(()=>{}));
+      }
+      return Promise.all(promises);
+    }
+
+    function freezeFixedStickyInClonedDoc(clonedDoc){
+      const nodes = clonedDoc.querySelectorAll('*');
+      nodes.forEach(el=>{
+        const st = clonedDoc.defaultView.getComputedStyle(el);
+        if (st.position === 'fixed' || st.position === 'sticky') {
+          el.style.position = 'static';
+        }
+      });
+    }
+
+    function computeAndSetScaleToFitA4(clonedDoc){
+      const A4PX = 794;
+      const MARGIN_PX = 30;
+      const targetW = A4PX - MARGIN_PX;
+
+      const viewport = clonedDoc.documentElement.style.getPropertyValue('--pdfViewport') || '1200px';
+      const vw = parseFloat(viewport) || 1200;
+
+      let scale = 1;
+      if (vw > targetW) scale = targetW / vw;
+      if (scale < 0.55) scale = 0.55;
+
+      clonedDoc.documentElement.style.setProperty('--pdfScale', scale.toFixed(4));
+      return scale;
+    }
+
+    function buildPdfOptionsForTarget(target, forceWinW, forceWinH){
+      const VIEWPORT_W = 1200;
+      return {
+        margin: [8, 8, 8, 8],
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          scrollY: 0,
+          scrollX: 0,
+          windowWidth:  forceWinW || VIEWPORT_W,
+          windowHeight: forceWinH || 2200,
+          onclone: (clonedDoc) => {
+            clonedDoc.body.classList.add('pdf-exporting');
+            clonedDoc.documentElement.style.setProperty('--pdfViewport', VIEWPORT_W + 'px');
+
+            clonedDoc.querySelectorAll('textarea').forEach(t=>{
+              t.style.height = 'auto';
+              t.style.height = (t.scrollHeight) + 'px';
+            });
+
+            clonedDoc.querySelectorAll('select.status-select').forEach(sel=>{
+              if ((sel.value || "") === "") sel.classList.add("is-placeholder");
+              else sel.classList.remove("is-placeholder");
+            });
+
+            freezeFixedStickyInClonedDoc(clonedDoc);
+            computeAndSetScaleToFitA4(clonedDoc);
+          }
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy"], avoid: [".card"] }
+      };
+    }
+
+    async function domToPdfArrayBuffer(target, opt){
+      const worker = html2pdf().set(opt).from(target);
+      const ab = await worker.outputPdf('arraybuffer');
+      return ab;
+    }
+
+    async function exportCurrentPage2(){
+      savePage2Data();
+
+      await waitForAssetsInDoc(document);
+
+      const target = document.querySelector('.container') || document.body;
+
+      const winW = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth, target.scrollWidth);
+      const winH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, target.scrollHeight);
+
+      const opt = buildPdfOptionsForTarget(target, winW, winH);
+      return await domToPdfArrayBuffer(target, opt);
+    }
+
+    window.generatePDFBuffer = async function () {
+      return await exportCurrentPage2();
+    };
+
+    window.addEventListener("message", async (event) => {
+      try {
+        if (!event.data || event.data.type !== "REQ_PDF_BUFFER") return;
+        if (typeof window.generatePDFBuffer !== "function") {
+          throw new Error("ไม่มี generatePDFBuffer() ในหน้า 2");
+        }
+        const ab = await window.generatePDFBuffer();
+        event.source?.postMessage({ type: "PDF_BUFFER", buffer: ab }, "*", [ab]);
+      } catch (err) {
+        event.source?.postMessage(
+          { type: "PDF_BUFFER_ERROR", message: err?.message || String(err) },
+          "*"
+        );
+      }
+    });
+
+    function killChromeAutofill() {
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        el.setAttribute('autocomplete','off');
+        el.setAttribute('autocorrect','off');
+        el.setAttribute('autocapitalize','off');
+        el.setAttribute('spellcheck','false');
+
+        const rnd = Math.random().toString(36).substring(2,10);
+        if (!el.hasAttribute('data-fixed-header')) {
+          el.setAttribute('name', 'no_autofill_' + rnd + '_' + i);
+        }
+
+        if (el.hasAttribute('data-fixed-header')) {
+          el.readOnly = true;
+          el.setAttribute('tabindex', '-1');
+          return;
+        }
+
+        if (el.tagName === 'INPUT') {
+          const t = (el.getAttribute('type') || '').toLowerCase();
+          if (t !== 'date' && t !== 'file') {
+            el.readOnly = true;
+            el.addEventListener('focus', function(){
+              if (!this.hasAttribute('data-fixed-header')) {
+                this.readOnly = false;
+              }
+            }, { once:false });
+          }
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      killChromeAutofill();
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(killChromeAutofill, 250);
+    });
+
   </script>
 </body>
 </html>

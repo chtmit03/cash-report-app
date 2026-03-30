@@ -5,87 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800;900&display=swap" rel="stylesheet">
-  <title>หน้า 1 - รายงานเงินสดและเช็ค</title>
-  
-  <style>
-    /* 1. ปรับสัดส่วนการ์ด: ซ้ายกว้าง ขวาแคบ */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr; /* ซ้ายกว้างกว่าขวา */
-      gap: 30px;
-    }
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <title>หน้า 1 - รายงานเงินสดและเช็ค</title>
+
+  <style>
+    body { font-family: 'Sarabun', sans-serif; background-color: #f4f7fe; }
+    .main-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
     .cash-input { width: 140px; text-align: right; font-weight: bold; background: #fff !important; border-radius: 8px; border: 1px solid #ddd; padding: 8px; }
     .denom-input { width: 80px; text-align: center; background: #fff !important; border-radius: 8px; border: 1px solid #ddd; padding: 5px; }
     .denom-total { width: 100px; display: inline-block; text-align: right; font-weight: 700; color: #555; }
-    
-    /* 2. สไตล์ Result Box และ Badge สีเด่นๆ */
-    .result-box-purple {
-      background-color: #F0F2FF; 
-      border-radius: 20px;
-      padding: 25px;
-      margin-top: 20px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .net-balance-value { font-size: 36px; font-weight: 900; color: #1a1a1a; }
-    
-    /* สถานะแบบสีเด่นพิเศษ */
-    .status-highlight {
-      padding: 10px 30px;
-      border-radius: 50px;
-      font-weight: 900;
-      font-size: 18px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .status-match-top { background-color: #28a745; color: white; } /* เขียวเด่น */
-    .status-mismatch-top { background-color: #dc3545; color: white; } /* แดงเด่น */
-    
-    /* 3. บันทึกเพิ่มเติมยาวเต็มบรรทัด */
-    .full-width-note {
-      width: 100%;
-      box-sizing: border-box; /* สำคัญ: เพื่อให้ padding ไม่ดันขอบทะลุการ์ด */
-      display: block;
-      margin-top: 10px;
-      padding: 12px;
-      border-radius: 12px;
-      border: 2px solid #F0F0F0;
-      font-family: 'Sarabun';
-      resize: vertical;
+
+    .result-box-purple { background-color: #F0F2FF; border-radius: 20px; padding: 25px; margin-top: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .net-balance-value { font-size: 32px; font-weight: 900; color: #1a1a1a; }
+
+    .diff-box { font-size: 20px; font-weight: 800; padding: 5px 20px; border-radius: 10px; margin-bottom: 5px; }
+    .diff-over { color: #28a745; background: #e8f5e9; }
+    .diff-short { color: #dc3545; background: #ffebee; }
+
+    .status-highlight { padding: 10px 30px; border-radius: 50px; font-weight: 900; font-size: 18px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .status-match-top { background-color: #28a745; color: white; }
+    .status-mismatch-top { background-color: #dc3545; color: white; }
+
+    .excess-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; gap: 10px; }
+    .excess-label { font-size: 20px; font-weight: 900; color: #cf1322; flex-shrink: 0; }
+    .excess-input { width: 160px; text-align: center; font-weight: bold; color: #cf1322; border: 2px solid #cf1322; border-radius: 10px; padding: 8px; outline: none; font-size: 18px; }
+
+    .full-width-note { width: 100%; box-sizing: border-box; display: block; margin-top: 10px; padding: 12px; border-radius: 12px; border: 2px solid #F0F0F0; font-family: 'Sarabun'; resize: vertical; }
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 25px; }
+    .tab-menu { pointer-events: none; }
+    select { background: #fff !important; border-radius: 8px; padding: 8px; border: 1px solid #ddd; font-family: 'Sarabun'; }
+
+    /* ปุ่ม Footer */
+    .btn-next { background: #5c67f2; color: white; padding: 12px 30px; border-radius: 15px; text-decoration: none; font-weight: 800; display: inline-block; box-shadow: 0 4px 12px rgba(92,103,242,0.3); }
+    .btn-pdf { background: #27ae60; color: white; padding: 12px 30px; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; margin-right: 10px; font-family: 'Sarabun'; box-shadow: 0 4px 12px rgba(39,174,96,0.3); }
+
+    /* ✅ เพิ่มสีตามเงื่อนไข (ไม่กระทบ UI เดิม) */
+    .text-blue { color: #1a237e !important; }
+    .text-red  { color: #cf1322 !important; }
+
+    /* ✅ placeholder "เลือก..." แบบจางๆ สำหรับ option แรก */
+    option.placeholder { color: #9aa0a6; }
+
+    .req-star{
+      color:#cf1322;
+      font-size:12px;
+      font-weight:800;
+      margin-left:3px;
+      vertical-align:top;
     }
 
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      margin-top: 25px;
+    /* =========================
+       ✅ PDF EXPORT MODE
+       - ให้ระบบไปใช้กติกากลางใน style.css เป็นหลัก
+       - หน้า 1 ใส่แค่ของจำเป็น ไม่ซ้ำชน
+       ========================= */
+    body.pdf-exporting { background:#fff !important; }
+
+    /* ✅ สำคัญ: ปิด transition ตอน export กัน layout ขยับ */
+    body.pdf-exporting * { transition: none !important; }
+
+    /* ✅ ล็อกความกว้างตอน export กัน reflow (ต้องตรงกับหน้า 4) */
+    body.pdf-exporting,
+    body.pdf-exporting .container{
+      width: var(--pdfViewport, 1200px) !important;
+      max-width: var(--pdfViewport, 1200px) !important;
     }
-    
-    .tab-menu { pointer-events: none; }
-    select { background: #fff !important; border-radius: 8px; padding: 8px; border: 1px solid #ddd; }
+
+    body.pdf-exporting .container{
+      transform: scale(var(--pdfScale, 1));
+      transform-origin: top left;
+      margin: 0 auto !important;
+    }
+
+    /* ✅ กันตัดกลางการ์ด */
+    body.pdf-exporting .card{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
   </style>
 </head>
 
 <body>
-  <div class="container">
 
+  <!-- 🔥 Chrome Autofill Killer (สำคัญมาก ห้ามลบ) -->
+  <input type="text" style="position:absolute;top:-9999px;left:-9999px;">
+  <input type="password" style="position:absolute;top:-9999px;left:-9999px;">
+
+  <div class="container">
     <div class="header-container">
-      <div class="header-group">
-        <label>สาขา / สำนักงาน</label>
-        <input type="text" id="branchName">
-      </div>
-      <div class="header-group">
-        <label>วันที่ตรวจสอบ</label>
-        <input type="date" id="auditDate">
-      </div>
-      <div class="header-group">
-        <label>ผู้ตรวจสอบ</label>
-        <input type="text" id="auditorName">
-      </div>
+      <div class="header-group"><label>สาขา / สำนักงาน <span class="req-star">*</span></label><input type="text" id="branchName" class="modern-input" oninput="saveHeader()"></div>
+      <div class="header-group"><label>วันที่ตรวจสอบ <span class="req-star">*</span></label><input type="date" id="auditDate" class="modern-input" onchange="saveHeader()"></div>
+      <div class="header-group"><label>ผู้ตรวจสอบ <span class="req-star">*</span></label><input type="text" id="auditorName" class="modern-input" oninput="saveHeader()"></div>
     </div>
 
     <div class="tab-menu">
@@ -97,32 +109,39 @@
 
     <div class="main-grid">
       <div class="card">
-        <div class="card-title">สรุปเงินสดคงเหลือตามบัญชี</div>
+        <div class="card-title" id="cash_summary_title">สรุปเงินสดคงเหลือตามบัญชี</div>
+
         <table style="width:100%;">
-          <tr><td>ยอดยกมา</td><td align="right"><input type="number" id="start_bal" class="cash-input" oninput="calc()" style="color:red;"></td></tr>
-          <tr><td>ยอดรับเงิน</td><td align="right"><input type="number" id="receive_bal" class="cash-input" oninput="calc()"></td></tr>
-          <tr><td>ยอดจ่ายเงิน</td><td align="right"><input type="number" id="pay_bal" class="cash-input" oninput="calc()"></td></tr>
-          <tr><td>ยอดจัดใหม่</td><td align="right"><input type="number" id="adjust_bal" class="cash-input" oninput="calc()"></td></tr>
+          <tr><td>ยอดยกมา <span class="req-star">*</span></td><td align="right"><input type="text" inputmode="numeric" id="start_bal" class="cash-input" oninput="formatComma(this); calc();" style="color:red;"></td></tr>
+          <tr><td>ยอดรับเงิน <span class="req-star">*</span></td><td align="right"><input type="text" inputmode="numeric" id="receive_bal" class="cash-input" oninput="formatComma(this); calc();"></td></tr>
+          <tr><td>ยอดจ่ายเงิน <span class="req-star">*</span></td><td align="right"><input type="text" inputmode="numeric" id="pay_bal" class="cash-input" oninput="formatComma(this); calc();"></td></tr>
+          <tr><td>ยอดจัดใหม่ <span class="req-star">*</span></td><td align="right"><input type="text" inputmode="numeric" id="adjust_bal" class="cash-input" oninput="formatComma(this); calc();"></td></tr>
         </table>
 
         <div class="result-box-purple">
-          <span style="font-weight:700; font-size: 18px; color: #555;">คงเหลือสุทธิ (NET BALANCE)</span>
+          <span style="font-weight:700; color: #555;">คงเหลือสุทธิ (ตามบัญชี)</span>
           <span class="net-balance-value" id="left_sum">0.00</span>
+
+          <div id="diff_container" class="diff-box" style="display:none;">
+            <span>ส่วนต่าง: </span><span id="diff_amount">0.00</span>
+          </div>
+
           <div id="status_badge" class="status-highlight status-mismatch-top">ยอดเงินไม่ถูกต้อง</div>
         </div>
 
-        <div style="margin-top: 25px; display:flex; align-items:center; justify-content:space-between;">
-          <label style="font-size: 16px; color: #ef0b0b; font-weight:800;">รหัสเงินเกิน (ยอดยกมาเกิน 7,000):</label>
-          <input type="text" class="cash-input" style="width: 150px; text-align: center;">
+        <div class="excess-row">
+          <label class="excess-label" id="excess_label">รหัสเงินเกิน (ยอดยกมาเกิน 7,000)</label>
+          <input type="text" id="excess_cash_code" class="excess-input" placeholder="กรอกรหัส..." oninput="saveTableData()">
         </div>
       </div>
 
       <div class="card">
         <div class="card-title">นับเงินสดจริง</div>
         <table id="denom_table" style="width:100%;"></table>
+
         <div style="margin-top:15px; border-top:3px double #ddd; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-weight:800; color:red; font-size:18px;">รวมเงินจริงสุทธิ</span>
-          <span style="font-weight:900; color:red; font-size:28px;" id="right_total">0.00</span>
+          <span style="font-weight:800; color:#1a237e; font-size:18px;">รวมเงินจริงสุทธิ</span>
+          <span style="font-weight:900; color:#1a237e; font-size:28px;" id="right_total">0.00</span>
         </div>
       </div>
     </div>
@@ -131,70 +150,309 @@
       <div class="card">
         <div class="card-title">ตู้นิรภัย (Safe Box)</div>
         <table style="width:100%;">
-          <tr><td>การติดตั้งตู้นิรภัย</td><td align="right"><select style="width:160px;"><option>มี</option><option>ไม่มี</option></select></td></tr>
-          <tr><td>ลักษณะรหัสผ่าน</td><td align="right"><select style="width:160px;"><option>แบบหมุนรหัส</option><option>แบบดิจิทัล</option></select></td></tr>
-          <tr><td>การปิดล็อคด้วยรหัส</td><td align="right"><select style="width:160px;"><option>ปกติ</option><option>ไม่ได้</option></select></td></tr>
-          <tr><td>การทดสอบการใช้งาน</td><td align="right"><select style="width:160px;"><option>ผ่านทุกคน</option><option>ผ่านบางคน</option><option>ไม่ผ่านทุกคน</option></select></td></tr>
+          <tr>
+            <td>การติดตั้งตู้นิรภัย <span class="req-star">*</span></td>
+            <td align="right">
+              <select id="safe_install" style="width:160px;" onchange="saveTableData()">
+                <option class="placeholder" value="" selected>เลือก...</option>
+                <option value="มี">มี</option>
+                <option value="ไม่มี">ไม่มี</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>ลักษณะรหัสผ่าน <span class="req-star">*</span></td>
+            <td align="right">
+              <select id="safe_type" style="width:160px;" onchange="saveTableData()">
+                <option class="placeholder" value="" selected>เลือก...</option>
+                <option value="แบบหมุนรหัส">แบบหมุนรหัส</option>
+                <option value="แบบดิจทัล">แบบดิจทัล</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>การปิดล็อคด้วยรหัส <span class="req-star">*</span></td>
+            <td align="right">
+              <select id="safe_lock" style="width:160px;" onchange="saveTableData()">
+                <option class="placeholder" value="" selected>เลือก...</option>
+                <option value="ปกติ">ปกติ</option>
+                <option value="ไม่ได้">ไม่ได้</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>การทดสอบการใช้งาน <span class="req-star">*</span></td>
+            <td align="right">
+              <select id="safe_test" style="width:160px;" onchange="saveTableData()">
+                <option class="placeholder" value="" selected>เลือก...</option>
+                <option value="ผ่านทุกคน">ผ่านทุกคน</option>
+                <option value="ผ่านบางคน">ผ่านบางคน</option>
+                <option value="ไม่ผ่านทุกคน">ไม่ผ่านทุกคน</option>
+              </select>
+            </td>
+          </tr>
         </table>
         <label style="display:block; margin-top:15px; font-weight:700;">บันทึกเพิ่มเติมตู้นิรภัย:</label>
-        <textarea class="full-width-note" rows="3" placeholder="กรอกรายละเอียด..."></textarea>
+        <textarea id="safe_note" class="full-width-note" rows="3" placeholder="กรอกรายละเอียด..." oninput="saveTableData()"></textarea>
       </div>
 
       <div class="card">
         <div class="card-title">การตรวจสอบรายการเช็ค</div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span>รายงานจากฝ่ายการเงิน</span>
-          <span><input type="number" class="denom-input"> ฉบับ</span>
+          <span>รายงานจากฝ่ายการเงิน <span class="req-star">*</span></span>
+          <span><input type="number" id="check_report_count" class="denom-input" min="0" oninput="saveTableData()"> ฉบับ</span>
         </div>
         <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
           <span>สถานะตรวจสอบ:</span>
-          <select style="width:160px;"><option>ถูกต้อง</option><option>ไม่ถูกต้อง</option></select>
+          <select id="check_status" style="width:160px;" onchange="saveTableData()">
+            <option class="placeholder" value="" selected>เลือก...</option>
+            <option value="ถูกต้อง">ถูกต้อง</option>
+            <option value="ไม่ถูกต้อง">ไม่ถูกต้อง</option>
+          </select>
         </div>
-        <textarea class="full-width-note" rows="2" placeholder="บันทึกสถานะตรวจสอบ..."></textarea>
+
+        <textarea id="check_status_note" class="full-width-note" rows="2" placeholder="บันทึกสถานะตรวจสอบ..." oninput="saveTableData()"></textarea>
 
         <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #EEE; padding-top:15px; margin-top:15px;">
-          <span style="font-weight:bold;">เช็คที่หมดอายุ</span>
-          <span><input type="number" class="denom-input"> ฉบับ</span>
+          <span style="font-weight:bold;">เช็คที่หมดอายุ <span class="req-star">*</span></span>
+          <span><input type="number" id="check_expired_count" class="denom-input" min="0" oninput="saveTableData()"> ฉบับ</span>
         </div>
-        <textarea class="full-width-note" rows="2" placeholder="บันทึกข้อมูลเช็คหมดอายุ..."></textarea>
+        <textarea id="check_expired_note" class="full-width-note" rows="2" placeholder="บันทึกข้อมูลเช็คหมดอายุ..." oninput="saveTableData()"></textarea>
       </div>
     </div>
 
     <div style="display: flex; justify-content: flex-end; margin-top: 30px; padding-bottom: 50px;">
-      <a href="page2.html" class="btn-next">หน้าถัดไป (หน้า 2: ภาษี) →</a>
+      <a href="javascript:void(0);" onclick="goToNext()" class="btn-next">หน้าถัดไป (หน้า 2: ภาษี) →</a>
     </div>
   </div>
 
   <script>
+    const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
+
     function saveHeader() {
-      localStorage.setItem('global_branch', document.getElementById('branchName').value);
-      localStorage.setItem('global_date', document.getElementById('auditDate').value);
-      localStorage.setItem('global_auditor', document.getElementById('auditorName').value);
+      sessionStorage.setItem('global_branch', document.getElementById('branchName').value);
+      sessionStorage.setItem('global_date', document.getElementById('auditDate').value);
+      sessionStorage.setItem('global_auditor', document.getElementById('auditorName').value);
     }
+
     function loadHeader() {
-      document.getElementById('branchName').value = localStorage.getItem('global_branch') || '';
-      document.getElementById('auditorName').value = localStorage.getItem('global_auditor') || '';
-      const savedDate = localStorage.getItem('global_date');
+      document.getElementById('branchName').value = sessionStorage.getItem('global_branch') || '';
+      document.getElementById('auditorName').value = sessionStorage.getItem('global_auditor') || '';
+      const savedDate = sessionStorage.getItem('global_date');
       if (savedDate) document.getElementById('auditDate').value = savedDate;
       else document.getElementById('auditDate').valueAsDate = new Date();
     }
 
-    const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
+    function clearHeaderMemory() {
+      sessionStorage.removeItem('global_branch');
+      sessionStorage.removeItem('global_date');
+      sessionStorage.removeItem('global_auditor');
+    }
+
+    function clearHeaderInputs() {
+      document.getElementById('branchName').value = '';
+      document.getElementById('auditDate').value = '';
+      document.getElementById('auditorName').value = '';
+    }
+
+    function formatComma(el) {
+      let raw = (el.value || "").toString();
+      raw = raw.replace(/[^\d]/g, "");
+      if (raw === "") { el.value = ""; return; }
+      el.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function parseNumberWithComma(v) {
+      if (v === null || v === undefined) return 0;
+      const s = String(v).replace(/,/g, "").trim();
+      const n = Number(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function saveTableData() {
+      const diffText = (document.getElementById('diff_amount')?.innerText || '').trim();
+      const badgeText = (document.getElementById('status_badge')?.innerText || '').trim();
+
+      const data = {
+        start: document.getElementById('start_bal').value,
+        receive: document.getElementById('receive_bal').value,
+        pay: document.getElementById('pay_bal').value,
+        adjust: document.getElementById('adjust_bal').value,
+        excess_code: document.getElementById('excess_cash_code').value,
+        denoms: {},
+        safe: {
+          install: document.getElementById('safe_install').value,
+          type: document.getElementById('safe_type').value,
+          lock: document.getElementById('safe_lock').value,
+          test: document.getElementById('safe_test').value,
+          note: document.getElementById('safe_note').value
+        },
+        check: {
+          report_count: document.getElementById('check_report_count').value,
+          status: document.getElementById('check_status').value,
+          status_note: document.getElementById('check_status_note').value,
+          expired_count: document.getElementById('check_expired_count').value,
+          expired_note: document.getElementById('check_expired_note').value
+        },
+        left_sum: document.getElementById('left_sum').innerText,
+        right_total: document.getElementById('right_total').innerText,
+        cash_status: badgeText,
+        diff_amount: diffText
+      };
+
+      denoms.forEach(d => {
+        data.denoms['q' + d] = document.getElementById('q' + d).value;
+      });
+
+      sessionStorage.setItem('page1_cache', JSON.stringify(data));
+    }
+
+    function loadTableData() {
+      const saved = sessionStorage.getItem('page1_cache');
+      if (!saved) return;
+      const data = JSON.parse(saved);
+
+      document.getElementById('start_bal').value = data.start || '';
+      document.getElementById('receive_bal').value = data.receive || '';
+      document.getElementById('pay_bal').value = data.pay || '';
+      document.getElementById('adjust_bal').value = data.adjust || '';
+      document.getElementById('excess_cash_code').value = data.excess_code || '';
+
+      formatComma(document.getElementById('start_bal'));
+      formatComma(document.getElementById('receive_bal'));
+      formatComma(document.getElementById('pay_bal'));
+      formatComma(document.getElementById('adjust_bal'));
+
+      denoms.forEach(d => {
+        if (data.denoms && data.denoms['q' + d] !== undefined) {
+          document.getElementById('q' + d).value = data.denoms['q' + d];
+        }
+      });
+
+      if (data.safe) {
+        document.getElementById('safe_install').value = data.safe.install || "";
+        document.getElementById('safe_type').value    = data.safe.type || "";
+        document.getElementById('safe_lock').value    = data.safe.lock || "";
+        document.getElementById('safe_test').value    = data.safe.test || "";
+        document.getElementById('safe_note').value    = data.safe.note || "";
+      }
+
+      if (data.check) {
+        document.getElementById('check_report_count').value = data.check.report_count || '';
+        document.getElementById('check_status').value       = data.check.status || "";
+        document.getElementById('check_status_note').value  = data.check.status_note || '';
+        document.getElementById('check_expired_count').value= data.check.expired_count || '';
+        document.getElementById('check_expired_note').value = data.check.expired_note || '';
+      }
+    }
+
+    /* =========================
+       ✅ VALIDATION หน้า 1
+       - บังคับกรอกทั้งหมด
+       - ยกเว้น safe_note / check_status_note / check_expired_note
+       - ถ้า check_report_count > 0 ต้องเลือก check_status
+       - ถ้ายอดยกมาเกิน 7,000 ต้องกรอกรหัสเงินเกิน
+       ========================= */
+    function validateBeforeNext(){
+      const requiredIds = [
+        'branchName',
+        'auditDate',
+        'auditorName',
+        'start_bal',
+        'receive_bal',
+        'pay_bal',
+        'adjust_bal',
+        'safe_install',
+        'safe_type',
+        'safe_lock',
+        'safe_test',
+        'check_report_count',
+        'check_expired_count'
+      ];
+
+      for (const id of requiredIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+
+        const value = (el.value || '').toString().trim();
+        if (value === '') {
+          alert('กรุณากรอกข้อมูลหน้า 1 ให้ครบ');
+          el.focus();
+          return false;
+        }
+      }
+
+      for (const d of denoms) {
+        const el = document.getElementById('q' + d);
+        if (!el) continue;
+
+        const value = (el.value || '').toString().trim();
+        if (value === '') {
+          alert('กรุณากรอกข้อมูลหน้า 1 ให้ครบ');
+          el.focus();
+          return false;
+        }
+      }
+
+      const start = parseNumberWithComma(document.getElementById('start_bal').value);
+      const code  = (document.getElementById('excess_cash_code').value || "").trim();
+
+      if (start > 7000 && code === "") {
+        alert("หน้า 1: ยอดยกมาเกิน 7,000 ต้องกรอกรหัสเงินเกิน");
+        document.getElementById('excess_cash_code').focus();
+        return false;
+      }
+
+      const reportCount = Number(document.getElementById('check_report_count').value || 0);
+      const checkStatus = (document.getElementById('check_status').value || '').trim();
+
+      if (reportCount > 0 && checkStatus === '') {
+        alert('หน้า 1: ถ้ารายงานจากฝ่ายการเงินมากกว่า 0 ต้องเลือกสถานะตรวจสอบ');
+        document.getElementById('check_status').focus();
+        return false;
+      }
+
+      return true;
+    }
+
+    function goToNext() {
+  saveTableData();
+  saveHeader();
+  window.location.href = "page2.html";
+}
+
     const table = document.getElementById('denom_table');
     denoms.forEach(d => {
       const row = table.insertRow();
-      row.innerHTML = `
-        <td style="font-weight:700; padding: 10px 5px;">${d.toLocaleString()} บาท</td>
-        <td align="center"><input type="number" id="q${d}" class="denom-input" value="0" oninput="calc()"></td>
-        <td align="right"><span id="t${d}" class="denom-total">0</span></td>
-      `;
+      row.innerHTML = `<td style="font-weight:700; padding: 10px 5px;">${d.toLocaleString()} บาท</td>
+        <td align="center"><input type="number" id="q${d}" class="denom-input" min="0" value="" oninput="calc()"></td>
+        <td align="right"><span id="t${d}" class="denom-total">0</span></td>`;
     });
 
+    function applyStartBalanceColor(startVal) {
+      const titleEl = document.getElementById('cash_summary_title');
+      const excessEl = document.getElementById('excess_label');
+
+      const over = startVal > 7000;
+
+      titleEl.classList.remove('text-blue', 'text-red');
+      excessEl.classList.remove('text-blue', 'text-red');
+
+      if (over) {
+        titleEl.classList.add('text-red');
+        excessEl.classList.add('text-red');
+      } else {
+        titleEl.classList.add('text-blue');
+        excessEl.classList.add('text-blue');
+      }
+    }
+
     function calc() {
-      const start = +document.getElementById('start_bal').value || 0;
-      const rec = +document.getElementById('receive_bal').value || 0;
-      const pay = +document.getElementById('pay_bal').value || 0;
-      const adj = +document.getElementById('adjust_bal').value || 0;
+      const start = parseNumberWithComma(document.getElementById('start_bal').value);
+      const rec   = parseNumberWithComma(document.getElementById('receive_bal').value);
+      const pay   = parseNumberWithComma(document.getElementById('pay_bal').value);
+      const adj   = parseNumberWithComma(document.getElementById('adjust_bal').value);
+
       const left = (start + rec) - pay - adj;
       document.getElementById('left_sum').innerText = left.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
@@ -207,23 +465,201 @@
       });
       document.getElementById('right_total').innerText = right.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
+      const diff = right - left;
+      const diffContainer = document.getElementById('diff_container');
+      const diffAmountEl = document.getElementById('diff_amount');
       const badge = document.getElementById('status_badge');
-      if (Math.abs(left - right) < 0.01 && (left !== 0 || right !== 0)) {
+
+      if (Math.abs(diff) < 0.01) {
+        diffContainer.style.display = "none";
         badge.innerText = "ยอดเงินตรงตามบัญชี";
         badge.className = "status-highlight status-match-top";
       } else {
-        badge.innerText = "ยอดเงินไม่ถูกต้อง";
+        diffContainer.style.display = "block";
+        diffAmountEl.innerText = (diff > 0 ? "+" : "") + diff.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        diffContainer.className = "diff-box " + (diff > 0 ? "diff-over" : "diff-short");
+        badge.innerText = diff > 0 ? "มียอดเงินเกิน" : "มียอดเงินขาด";
         badge.className = "status-highlight status-mismatch-top";
       }
+
+      applyStartBalanceColor(start);
+      saveTableData();
     }
+
+    /* =========================
+       ✅ PDF EXPORT
+       - ล็อก viewport = 1200 (เหมือนหน้า 4)
+       - ให้ scale คำนวนจาก --pdfViewport (กัน reflow)
+       ========================= */
+
+    function waitForAssetsInDoc(doc){
+      const promises = [];
+      const imgs = Array.from(doc.images || []);
+      imgs.forEach(img=>{
+        if(!img.complete){
+          promises.push(new Promise(res=>{
+            img.onload = ()=>res();
+            img.onerror = ()=>res();
+          }));
+        }
+      });
+      if (doc.fonts && doc.fonts.ready) {
+        promises.push(doc.fonts.ready.catch(()=>{}));
+      }
+      return Promise.all(promises);
+    }
+
+    function freezeFixedStickyInClonedDoc(clonedDoc){
+      const nodes = clonedDoc.querySelectorAll('*');
+      nodes.forEach(el=>{
+        const st = clonedDoc.defaultView.getComputedStyle(el);
+        if (st.position === 'fixed' || st.position === 'sticky') {
+          el.style.position = 'static';
+        }
+      });
+    }
+
+    function computeAndSetScaleToFitA4(clonedDoc){
+      const A4PX = 794;
+      const MARGIN_PX = 30;
+      const targetW = A4PX - MARGIN_PX;
+
+      const viewport = clonedDoc.documentElement.style.getPropertyValue('--pdfViewport') || '1200px';
+      const vw = parseFloat(viewport) || 1200;
+
+      let scale = 1;
+      if (vw > targetW) scale = targetW / vw;
+      if (scale < 0.55) scale = 0.55;
+
+      clonedDoc.documentElement.style.setProperty('--pdfScale', scale.toFixed(4));
+      return scale;
+    }
+
+    function buildPdfOptionsForTarget(){
+      const VIEWPORT_W = 1200;
+      return {
+        margin: [8, 8, 8, 8],
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          scrollY: 0,
+          scrollX: 0,
+          windowWidth: VIEWPORT_W,
+          windowHeight: 2200,
+          onclone: (clonedDoc) => {
+            clonedDoc.body.classList.add('pdf-exporting');
+            clonedDoc.documentElement.style.setProperty('--pdfViewport', VIEWPORT_W + 'px');
+
+            clonedDoc.querySelectorAll('textarea').forEach(t=>{
+              t.style.height = 'auto';
+              t.style.height = (t.scrollHeight) + 'px';
+            });
+
+            freezeFixedStickyInClonedDoc(clonedDoc);
+            computeAndSetScaleToFitA4(clonedDoc);
+          }
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy"], avoid: [".card"] }
+      };
+    }
+
+    async function exportCurrentPage1ArrayBuffer(){
+      saveTableData();
+      saveHeader();
+
+      await waitForAssetsInDoc(document);
+
+      const target = document.querySelector('.container') || document.body;
+
+      await new Promise(r => setTimeout(r, 80));
+
+      const opt = buildPdfOptionsForTarget();
+
+      const worker = html2pdf().set(opt).from(target);
+      const ab = await worker.outputPdf('arraybuffer');
+      return ab;
+    }
+
+    function generatePDF() {
+      exportCurrentPage1ArrayBuffer().then((ab)=>{
+        const branch = sessionStorage.getItem('global_branch') || 'ไม่ระบุ';
+        const blob = new Blob([ab], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Audit_P1_${branch}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url), 2000);
+
+        clearHeaderMemory();
+        clearHeaderInputs();
+      });
+    }
+
+    window.generatePDFBuffer = async function () {
+      const ab = await exportCurrentPage1ArrayBuffer();
+      return ab;
+    };
 
     window.onload = () => {
       loadHeader();
-      ['branchName','auditDate','auditorName'].forEach(id => {
-        document.getElementById(id).addEventListener('input', saveHeader);
-      });
+      loadTableData();
       calc();
     };
+
+    window.addEventListener("message", async (event) => {
+      try {
+        if (!event.data || event.data.type !== "REQ_PDF_BUFFER") return;
+        if (typeof window.generatePDFBuffer !== "function") {
+          throw new Error("ไม่มี generatePDFBuffer() ในหน้า 1");
+        }
+        const ab = await window.generatePDFBuffer();
+        event.source?.postMessage({ type: "PDF_BUFFER", buffer: ab }, "*", [ab]);
+      } catch (err) {
+        event.source?.postMessage(
+          { type: "PDF_BUFFER_ERROR", message: err?.message || String(err) },
+          "*"
+        );
+      }
+    });
+
+    /* =========================================================
+       ✅ ปิด Chrome Autofill/แนะนำ "ข้อมูลที่บันทึก" แบบขั้นสุด
+       - หลอก Chrome ด้วยช่องล่องหน
+       - ตั้ง name ใหม่ + readonly ชั่วคราว
+       ========================================================= */
+    function killChromeAutofill() {
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        el.setAttribute('autocomplete','off');
+        el.setAttribute('autocorrect','off');
+        el.setAttribute('autocapitalize','off');
+        el.setAttribute('spellcheck','false');
+
+        const rnd = Math.random().toString(36).substring(2,10);
+        el.setAttribute('name', 'no_autofill_' + rnd + '_' + i);
+
+        if (!el.hasAttribute('data-keep-readonly')) {
+          el.readOnly = true;
+          el.addEventListener('focus', function(){
+            this.readOnly = false;
+          }, { once:false });
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      killChromeAutofill();
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(killChromeAutofill, 250);
+    });
   </script>
 </body>
 </html>

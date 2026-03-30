@@ -5,115 +5,207 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <title>หน้า 3 - การเงินและเอกสาร</title>
 
   <style>
     body { font-size: 16px; color: #333; font-family: 'Sarabun', sans-serif; }
     .page3-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
-    
     .card-title { font-size: 22px !important; margin-bottom: 20px !important; font-weight: 800 !important; color: #1a237e; }
-    
-    .sub-section-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 12px; 
-      border-bottom: 2px solid #EEE; 
-      padding-bottom: 8px;
-    }
+    .sub-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #EEE; padding-bottom: 8px; }
     .sub-title-text { font-weight: 800; font-size: 19px; color: #2d46b9; }
-
     .calc-status { padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 14px; border: 1px solid #ddd; display: inline-block; min-width: 90px; text-align: center; }
     .is-ok { background: #eef2ff; color: #2d46b9; border-color: #c9d2f8; }
     .is-error { background: #fff1f0; color: #cf1322; border-color: #ffa39e; }
     .is-match { color: #2d46b9; border: 1px solid #c9d2f8; background: #f0f3ff; }
     .is-mismatch { color: #cf1322; border: 1px solid #ffa39e; background: #fff1f0; }
-
     .styled-input { border: 1px solid #E0E0E0; border-radius: 10px; padding: 8px 12px; font-family: 'Sarabun'; font-size: 15px; outline: none; }
-    .mini-input { width: 65px; text-align: center; font-weight: bold; }
+    .mini-input { width: 80px; text-align: center; font-weight: bold; }
     .full-width-input { width: 100%; margin: 5px 0 15px 0; background: #fafafa; border-radius: 10px; box-sizing: border-box; }
-    
     .label-text { font-size: 15px; font-weight: 600; color: #555; }
     .field-label { font-size: 14px; font-weight: 700; color: #333; display: block; margin-top: 10px; }
-    
     .report-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; margin-top: 10px; border: 1px solid #EEE; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
-    .report-table th, .report-table td { border: 1px solid #EEE; padding: 10px; text-align: center; }
+    .report-table th, .report-table td { border: 1px solid #EEE; padding: 10px; text-align: center; vertical-align: middle; }
     .report-table th { background: #F9FAFB; color: #666; font-weight: 700; }
     .table-input { width: 95%; border: none; background: transparent; text-align: center; font-family: 'Sarabun'; font-size: 13px; outline: none; }
-
     .tab-menu { pointer-events: none; margin-bottom: 20px; }
     .full-card { grid-column: span 2; }
     .split-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-    /* ปรับปุ่มให้เหมือนหน้า 2 */
-    .footer-nav { display: flex; justify-content: space-between; margin-top: 40px; padding-bottom: 50px; align-items: center; }
     .btn-page2-back { background-color: #e2e8f0; color: #475569; padding: 12px 25px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 15px; }
     .btn-page2-next { background: #5c67f2; color: white; padding: 14px 35px; border-radius: 15px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 15px rgba(92, 103, 242, 0.3); }
+
+    /* ✅ placeholder "เลือก..." แบบจาง และให้ตัวเลือกอื่นสีดำ */
+    select.placeholder { color: #9aa0a6; }
+    select.placeholder option { color: #000; }
+    select option[disabled] { color: #9aa0a6; }
+
+    /* ✅ textarea autosize (หน้าตาเดิม) */
+    textarea.styled-input.full-width-input { resize: none; overflow: hidden; }
+
+    /* ✅ ปุ่มเพิ่ม/ลบแถว แบบกลมกลืน + เขยิบขวา 3 เคาะ + พาสเทล */
+    .btn-add-row, .btn-del-row {
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-family: 'Sarabun';
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .btn-add-row{
+      margin-left: 24px;                 /* ✅ เขยิบออกไปทางขวา ~3 เคาะ */
+      background: #EAF0FF;               /* ✅ พาสเทล */
+      border-color: #C9D2F8;
+      color: #2d46b9;
+      box-shadow: 0 4px 10px rgba(45, 70, 185, 0.10);
+    }
+    .btn-add-row:hover{ background: #DEE7FF; }
+    .btn-del-row {
+      color: #cf1322;
+      border-color: #ffd6d6;
+      background: #FFEFF0;               /* ✅ พาสเทลแดง */
+      box-shadow: 0 4px 10px rgba(207, 19, 34, 0.08);
+    }
+
+    /* ✅ cell textarea ให้ยืดสูงตามข้อความ */
+    .cell-textarea {
+      width: 95%;
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-family: 'Sarabun';
+      font-size: 13px;
+      outline: none;
+      resize: none;
+      overflow: hidden;
+      padding: 0;
+      line-height: 1.35;
+      min-height: 22px;
+    }
+
+
+    /* ✅ เลขสัญญา 13 หลักในตารางทะเบียนขาดตั้งแต่ 2 ปีขึ้นไป */
+    #overdueTaxTable th:first-child,
+    #overdueTaxTable td:first-child {
+      min-width: 140px;
+    }
+
+    #overdueTaxTable td:first-child .cell-textarea {
+      width: 130px;
+      white-space: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      word-break: normal;
+      overflow-wrap: normal;
+      wrap: off;
+    }
+
+
+    .req-star{
+      color:#cf1322;
+      font-size:12px;
+      font-weight:800;
+      margin-left:3px;
+      vertical-align:top;
+    }
+
+    /* =========================================================
+       ✅ PDF EXPORT MODE (ไม่กระทบหน้าเว็บจริง)
+       - ปรับให้เข้ากับแนวเดียวกับหน้า 1/2/4 (ใช้ onclone ไม่แตะ DOM จริง)
+       ========================================================= */
+    body.pdf-exporting { background:#fff !important; }
+    body.pdf-exporting * { transition: none !important; }
+
+    body.pdf-exporting,
+    body.pdf-exporting .container{
+      width: var(--pdfViewport, 1200px) !important;
+      max-width: var(--pdfViewport, 1200px) !important;
+    }
+
+    body.pdf-exporting .container{
+      transform: scale(var(--pdfScale, 1));
+      transform-origin: top left;
+      margin: 0 auto !important;
+    }
+    body.pdf-exporting .card{
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
   </style>
 </head>
 
 <body>
+  <!-- 🔥 Chrome Autofill Killer (สำคัญมาก ห้ามลบ) -->
+  <input type="text" style="position:absolute;top:-9999px;left:-9999px;">
+  <input type="password" style="position:absolute;top:-9999px;left:-9999px;">
+
   <div class="container">
     <div class="header-container">
-      <div class="header-group"><label>สาขา / สำนักงาน</label><input type="text" id="branchName" class="styled-input"></div>
-      <div class="header-group"><label>วันที่ตรวจสอบ</label><input type="date" id="auditDate" class="styled-input"></div>
-      <div class="header-group"><label>ผู้ตรวจสอบ</label><input type="text" id="auditorName" class="styled-input"></div>
+      <div class="header-group"><label>สาขา / สำนักงาน</label><input type="text" id="branchName" class="styled-input" readonly></div>
+      <div class="header-group"><label>วันที่ตรวจสอบ</label><input type="date" id="auditDate" class="styled-input" readonly></div>
+      <div class="header-group"><label>ผู้ตรวจสอบ</label><input type="text" id="auditorName" class="styled-input" readonly></div>
     </div>
 
     <div class="tab-menu">
-  <a class="tab-btn" href="page1.html">หน้า 1: เงินสด & เช็ค</a>
-  <a class="tab-btn" href="page2.html">หน้า 2: ภาษี</a>
-  <a class="tab-btn active" href="page3.html">หน้า 3: การเงินและเอกสาร</a>
-  <a class="tab-btn" href="page4.html">หน้า 4: ทั่วไป</a>
-</div>
+      <a class="tab-btn" href="#">หน้า 1: เงินสด & เช็ค</a>
+      <a class="tab-btn" href="#">หน้า 2: ภาษี</a>
+      <a class="tab-btn active" href="#">หน้า 3: การเงินและเอกสาร</a>
+      <a class="tab-btn" href="#">หน้า 4: ทั่วไป</a>
+    </div>
 
     <div class="page3-grid">
       <div class="card">
         <div class="card-title no-stripe">เล่มทะเบียนหลักประกัน</div>
-        
+
         <div class="sub-section-header"><span class="sub-title-text">เล่มทะเบียน รถยนต์</span><span id="status_car" class="calc-status is-ok">ถูกต้อง</span></div>
         <div style="margin-bottom: 20px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span class="label-text">ลิสซิ่ง: <input type="number" id="car_sys" class="styled-input mini-input" oninput="checkCar()"></span>
-            <span class="label-text">ตรวจจริง: <input type="number" id="car_real" class="styled-input mini-input" oninput="checkCar()"></span>
-            <span class="label-text">นอก สนง.: <input type="number" id="car_out" class="styled-input mini-input" oninput="checkCar()"></span>
+            <span class="label-text">ลิซซิ่ง <span class="req-star">*</span>: <input type="number" min="0" id="car_sys" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCar()"></span>
+            <span class="label-text">ตรวจจริง <span class="req-star">*</span>: <input type="number" min="0" id="car_real" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCar()"></span>
+            <span class="label-text">นอก สนง. <span class="req-star">*</span>: <input type="number" min="0" id="car_out" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCar()"></span>
           </div>
-          <div><span class="label-text">อนุมัติรับทราบโดย:</span> <input type="text" class="styled-input" style="width: 55%; margin-bottom: 5px;"></div>
-          
-          <label class="field-label">เลขสัญญาเล่มที่อยู่นอก สนง.</label>
-          <input type="text" class="styled-input full-width-input" placeholder="ระบุเลขสัญญา...">
-          
-          <label class="field-label">สาเหตุของเล่มอยู่นอก สนง.คือ</label>
-          <input type="text" class="styled-input full-width-input" placeholder="ระบุสาเหตุ...">
-          
+          <div><span class="label-text">อนุมัติรับทราบโดย<span class="req-star">*</span>:</span> <input type="text" id="car_approve_by" class="styled-input" style="width: 55%; margin-bottom: 5px;" oninput="savePage3Data()"></div>
+
+          <label class="field-label">เลขสัญญาเล่มที่อยู่นอก สนง.<span class="req-star">*</span></label>
+          <textarea id="car_out_ids" class="styled-input full-width-input" rows="1" placeholder="ระบุเลขสัญญา..." oninput="autoGrow(this); savePage3Data()"></textarea>
+
+          <label class="field-label">สาเหตุของเล่มอยู่นอก สนง.คือ<span class="req-star">*</span></label>
+          <textarea id="car_out_reason" class="styled-input full-width-input" rows="1" placeholder="ระบุสาเหตุ..." oninput="autoGrow(this); savePage3Data()"></textarea>
+
           <div style="margin-top: 10px; padding: 12px; border: 1px solid #EEE; border-radius: 12px; background: #fcfcfc;">
-            <span class="label-text">ปิดบัญชียังไม่รับเล่ม ข้อมูลลิสซิ่ง:</span> <input type="number" id="car_close_sys" class="styled-input mini-input" oninput="checkCloseCar()"> 
-            <span class="label-text">ตรวจนับที่ สนง.:</span> <input type="number" id="car_close_real" class="styled-input mini-input" oninput="checkCloseCar()">
+            <span class="label-text">ปิดบัญชียังไม่รับเล่ม ข้อมูลลิซซิ่ง<span class="req-star">*</span>:</span> <input type="number" min="0" id="car_close_sys" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCloseCar()">
+            <span class="label-text">ตรวจนับที่ สนง.<span class="req-star">*</span>:</span> <input type="number" min="0" id="car_close_real" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCloseCar()">
             <span id="car_close_status" class="calc-status is-match">ตรงรายงาน</span>
-            <textarea class="styled-input full-width-input" rows="2" style="margin-top:8px;" placeholder="บันทึกเพิ่มเติม..."></textarea>
+            <textarea id="car_close_note" class="styled-input full-width-input" rows="2" style="margin-top:8px;" placeholder="บันทึกเพิ่มเติม..." oninput="autoGrow(this); savePage3Data()"></textarea>
           </div>
         </div>
 
         <div class="sub-section-header"><span class="sub-title-text">เล่มทะเบียน จักรยานยนต์</span><span id="status_moto" class="calc-status is-ok">ถูกต้อง</span></div>
         <div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-            <span class="label-text">ลิสซิ่ง: <input type="number" id="moto_sys" class="styled-input mini-input" oninput="checkMoto()"></span>
-            <span class="label-text">ตรวจจริง: <input type="number" id="moto_real" class="styled-input mini-input" oninput="checkMoto()"></span>
-            <span class="label-text">นอก สนง.: <input type="number" id="moto_out" class="styled-input mini-input" oninput="checkMoto()"></span>
+            <span class="label-text">ลิซซิ่ง <span class="req-star">*</span>: <input type="number" min="0" id="moto_sys" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkMoto()"></span>
+            <span class="label-text">ตรวจจริง <span class="req-star">*</span>: <input type="number" min="0" id="moto_real" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkMoto()"></span>
+            <span class="label-text">นอก สนง. <span class="req-star">*</span>: <input type="number" min="0" id="moto_out" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkMoto()"></span>
           </div>
-          <div><span class="label-text">อนุมัติรับทราบโดย:</span> <input type="text" class="styled-input" style="width: 55%; margin-bottom: 5px;"></div>
-          
-          <label class="field-label">เลขสัญญาเล่มที่อยู่นอก สนง.</label>
-          <input type="text" class="styled-input full-width-input" placeholder="ระบุเลขสัญญา...">
-          
-          <label class="field-label">สาเหตุของเล่มอยู่นอก สนง.คือ</label>
-          <input type="text" class="styled-input full-width-input" placeholder="ระบุสาเหตุ...">
-          
+          <div><span class="label-text">อนุมัติรับทราบโดย<span class="req-star">*</span>:</span> <input type="text" id="moto_approve_by" class="styled-input" style="width: 55%; margin-bottom: 5px;" oninput="savePage3Data()"></div>
+
+          <label class="field-label">เลขสัญญาเล่มที่อยู่นอก สนง.<span class="req-star">*</span></label>
+          <textarea id="moto_out_ids" class="styled-input full-width-input" rows="1" placeholder="ระบุเลขสัญญา..." oninput="autoGrow(this); savePage3Data()"></textarea>
+
+          <label class="field-label">สาเหตุของเล่มอยู่นอก สนง.คือ<span class="req-star">*</span></label>
+          <textarea id="moto_out_reason" class="styled-input full-width-input" rows="1" placeholder="ระบุสาเหตุ..." oninput="autoGrow(this); savePage3Data()"></textarea>
+
           <div style="margin-top: 10px; padding: 12px; border: 1px solid #EEE; border-radius: 12px; background: #fcfcfc;">
-            <span class="label-text">ปิดบัญชียังไม่รับเล่ม ข้อมูลลิสซิ่ง:</span> <input type="number" id="moto_close_sys" class="styled-input mini-input" oninput="checkCloseMoto()"> 
-            <span class="label-text">ตรวจนับที่ สนง.:</span> <input type="number" id="moto_close_real" class="styled-input mini-input" oninput="checkCloseMoto()">
+            <span class="label-text">ปิดบัญชียังไม่รับเล่ม ข้อมูลลิซซิ่ง<span class="req-star">*</span>:</span> <input type="number" min="0" id="moto_close_sys" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCloseMoto()">
+            <span class="label-text">ตรวจนับที่ สนง.<span class="req-star">*</span>:</span> <input type="number" min="0" id="moto_close_real" class="styled-input mini-input" min="0" max="9999" inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4); if(+this.value>9999)this.value=9999; checkCloseMoto()">
             <span id="moto_close_status" class="calc-status is-match">ตรงรายงาน</span>
-            <textarea class="styled-input full-width-input" rows="2" style="margin-top:8px;" placeholder="บันทึกเพิ่มเติม..."></textarea>
+            <textarea id="moto_close_note" class="styled-input full-width-input" rows="2" style="margin-top:8px;" placeholder="บันทึกเพิ่มเติม..." oninput="autoGrow(this); savePage3Data()"></textarea>
           </div>
         </div>
       </div>
@@ -121,21 +213,21 @@
       <div class="card">
         <div class="card-title no-stripe">เอกสารสำคัญทางบัญชี</div>
         <div style="background:#F6F8FF; padding:15px; border-radius:12px; margin-bottom:20px; font-weight:bold; border:1px solid #d0d7f7; display: flex; align-items: center; gap: 10px;">
-          ตรวจสอบเอกสาร ช่วงเดือน: 
-          <select class="styled-input" style="width:100px;">
+          ตรวจสอบเอกสาร ช่วงเดือน<span class="req-star">*</span>:
+          <select id="doc_month_start" class="styled-input" style="width:100px;" onchange="applySelectPlaceholderStyle(this); savePage3Data()">
+            <option value="" selected disabled>เดือน</option>
             <script>
-              const months = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-              months.forEach(m => document.write(`<option ${m==='ต.ค.'?'selected':''}>${m}</option>`));
-            </script>
-          </select> 
-          ถึง 
-          <select class="styled-input" style="width:100px;">
-            <script>
-              months.forEach(m => document.write(`<option ${m==='ธ.ค.'?'selected':''}>${m}</option>`));
+              window.months = window.months || ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+              window.months.forEach(m => document.write(`<option value="${m}">${m}</option>`));
             </script>
           </select>
+          ถึง
+          <select id="doc_month_end" class="styled-input" style="width:100px;" onchange="applySelectPlaceholderStyle(this); savePage3Data()">
+            <option value="" selected disabled>เดือน</option>
+            <script>window.months.forEach(m => document.write(`<option value="${m}">${m}</option>`));</script>
+          </select>
         </div>
-        <table style="width:100%;">
+        <table style="width:100%;" id="contract-table">
           <script>
             const contractChecks = [
               "สัญญากู้ ครบตามรายงานจัดทำสัญญาและแบบ อส.4ข",
@@ -148,69 +240,275 @@
             contractChecks.forEach((text, i) => {
               document.write(`
                 <tr>
-                  <td style="padding:10px 0; font-size:15px; font-weight:600;">${i+1}. ${text}</td>
+                  <td style="padding:10px 0; font-size:15px; font-weight:600;">${i+1}. ${text} <span class="req-star">*</span></td>
                   <td align="right">
-                    <select class="calc-status is-ok" style="width:110px;">
-                      <option>ครบ</option>
-                      <option>ไม่ครบ</option>
-                      <option>ถูกต้อง</option>
-                      <option>ไม่ถูกต้อง</option>
+                    <select id="contract_status_${i}" class="calc-status is-ok" style="width:110px;" onchange="applySelectPlaceholderStyle(this); savePage3Data()">
+                      <option value="" selected>เลือก...</option>
+                      <option value="ครบ">ครบ</option>
+                      <option value="ไม่ครบ">ไม่ครบ</option>
+                      <option value="ถูกต้อง">ถูกต้อง</option>
+                      <option value="ไม่ถูกต้อง">ไม่ถูกต้อง</option>
                     </select>
                   </td>
                 </tr>
-                <tr><td colspan="2"><input type="text" class="styled-input full-width-input" style="margin-bottom:12px;" placeholder="หมายเหตุ..."></td></tr>
+                <tr><td colspan="2">
+                  <textarea id="contract_note_${i}" class="styled-input full-width-input" rows="1" style="margin-bottom:12px;" placeholder="หมายเหตุ..." oninput="autoGrow(this); savePage3Data()"></textarea>
+                </td></tr>
               `);
             });
           </script>
         </table>
       </div>
 
-      <div class="card full-card">
+      <div class="card full-card" id="stockSection">
         <div class="card-title no-stripe">สต็อกในความรับผิดชอบ (รถยนต์ / รถจักรยานยนต์)</div>
         <div style="margin-bottom: 10px;">
-           <span class="label-text">จำนวนคันทั้งหมด:</span> <input type="text" class="styled-input mini-input" value="0"> คัน
-           <span class="label-text" style="margin-left:20px;">จำนวนเล่มทะเบียนในสต็อก:</span> <input type="text" class="styled-input mini-input" value="0"> เล่ม
+          <span class="label-text">จำนวนคันทั้งหมด<span class="req-star">*</span>:</span> <input type="text" id="stock_total_cars" class="styled-input mini-input" value="0" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4); if(this.value==='')this.value='0'; savePage3Data()"> คัน
+          <span class="label-text" style="margin-left:20px;">จำนวนเล่มทะเบียนในสต็อก<span class="req-star">*</span>:</span>
+          <input type="text" id="stock_total_books" class="styled-input mini-input" value="0" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4); if(this.value==='')this.value='0'; savePage3Data()">
+          เล่ม
+          <button type="button" class="btn-add-row" onclick="addStockRow()">+ เพิ่มแถว</button>
         </div>
-        <table class="report-table">
+
+        <table class="report-table" id="stockTable">
           <thead>
-            <tr><th>ทะเบียน</th><th>รุ่นรถ</th><th>ปี</th><th>เครื่อง</th><th>เกียร์</th><th>ตัวถัง</th><th>ราคาตั้งขาย</th><th>บันทึกเพิ่มเติม</th></tr>
+            <tr><th>ทะเบียน</th><th>รุ่นรถ</th><th>ปี</th><th>เครื่อง</th><th>เกียร์</th><th>ตัวถัง</th><th>ราคาตั้งขาย</th><th>บันทึกเพิ่มเติม</th><th style="width:70px;">ลบ</th></tr>
           </thead>
-          <tbody>
-            <script>
-              for(let i=0; i<5; i++) document.write('<tr>'+'<td><input type="text" class="table-input"></td>'.repeat(8)+'</tr>');
-            </script>
-          </tbody>
+          <tbody id="stockTbody"></tbody>
         </table>
       </div>
 
-      <div class="card full-card">
+      <div class="card full-card" id="overdueSection">
         <div class="card-title no-stripe">รายการเล่มทะเบียนค้างนาน (เกิน 2 ปี)</div>
         <div class="split-container">
           <div>
-            <div class="sub-title-text" style="font-size: 18px; margin-bottom: 10px;">1. ปิดบัญชีไม่รับเล่มเกิน 2 ปี (จำนวน <input type="text" class="styled-input mini-input" value="0"> เล่ม)</div>
-            <table class="report-table">
-              <thead><tr><th>เลขสัญญา</th><th>ทะเบียน</th><th>วันที่ปิด บ/ช</th><th>รายละเอียดเพิ่มเติม</th></tr></thead>
-              <tbody><script>for(let i=0; i<5; i++) document.write('<tr>'+'<td><input type="text" class="table-input"></td>'.repeat(4)+'</tr>');</script></tbody>
+            <div class="sub-title-text" style="font-size: 18px; margin-bottom: 10px;">
+              1. ปิดบัญชีไม่รับเล่มเกิน 2 ปี <span class="req-star">*</span>(จำนวน
+              <input type="text" id="overdue_close_count" class="styled-input mini-input" value="0" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4); if(this.value==='')this.value='0'; savePage3Data()">
+              เล่ม)
+              <button type="button" class="btn-add-row" onclick="addOverdueCloseRow()">+ เพิ่มแถว</button>
+            </div>
+
+            <table class="report-table" id="overdueCloseTable">
+              <thead><tr><th>เลขสัญญา</th><th>ทะเบียน</th><th>วันที่ปิด บ/ช</th><th>รายละเอียดเพิ่มเติม</th><th style="width:70px;">ลบ</th></tr></thead>
+              <tbody id="overdueCloseTbody"></tbody>
             </table>
           </div>
+
           <div>
-            <div class="sub-title-text" style="font-size: 18px; margin-bottom: 10px;">2. ทะเบียนขาดตั้งแต่ 2 ปีขึ้นไป (จำนวน <input type="text" class="styled-input mini-input" value="0"> เล่ม)</div>
-            <table class="report-table">
-              <thead><tr><th>เลขสัญญา</th><th>ทะเบียน</th><th>ภาษีขาด</th><th>ค้างค่างวด</th><th>รายละเอียด</th></tr></thead>
-              <tbody><script>for(let i=0; i<5; i++) document.write('<tr>'+'<td><input type="text" class="table-input"></td>'.repeat(5)+'</tr>');</script></tbody>
+            <div class="sub-title-text" style="font-size: 18px; margin-bottom: 10px;">
+              2. ทะเบียนขาดตั้งแต่ 2 ปีขึ้นไป <span class="req-star">*</span>(จำนวน
+              <input type="text" id="overdue_tax_count" class="styled-input mini-input" value="0" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4); if(this.value==='')this.value='0'; savePage3Data()">
+              เล่ม)
+              <button type="button" class="btn-add-row" onclick="addOverdueTaxRow()">+ เพิ่มแถว</button>
+            </div>
+
+            <table class="report-table" id="overdueTaxTable">
+              <thead><tr><th>เลขสัญญา</th><th>ทะเบียน</th><th>ภาษีขาด</th><th>ค้างค่างวด</th><th>รายละเอียด</th><th style="width:70px;">ลบ</th></tr></thead>
+              <tbody id="overdueTaxTbody"></tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
 
-   <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-bottom: 50px;">
-      <a href="page2.html" class="btn-back">← ย้อนกลับ (หน้า 2)</a>
-      <a href="page4.html" class="btn-next">หน้าถัดไป (หน้า 4:ทั่วไป ) →</a>
+    <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-bottom: 50px; align-items: center;">
+      <a href="javascript:void(0)" onclick="goBack()" class="btn-page2-back">← ย้อนกลับ (หน้า 2)</a>
+      <a href="javascript:void(0)" onclick="goNext()" class="btn-page2-next">หน้าถัดไป (หน้า 4: ทั่วไป) →</a>
     </div>
   </div>
 
   <script>
+    function autoGrow(el) {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = (el.scrollHeight) + "px";
+    }
+
+    function autoGrowCell(el) {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = (el.scrollHeight) + "px";
+      const tr = el.closest('tr');
+      if (tr) tr.style.height = "auto";
+    }
+
+    function initAutoGrowAll() {
+      document.querySelectorAll('textarea').forEach(t => {
+        if (t.classList.contains('cell-textarea')) autoGrowCell(t);
+        else autoGrow(t);
+      });
+    }
+
+    function applySelectPlaceholderStyle(sel) {
+      if (!sel) return;
+      if (sel.value === "") sel.classList.add('placeholder');
+      else sel.classList.remove('placeholder');
+    }
+    function initSelectPlaceholders() {
+      document.querySelectorAll('select').forEach(applySelectPlaceholderStyle);
+    }
+    function loadHeaderData() {
+      const b = sessionStorage.getItem('global_branch') || localStorage.getItem('global_branch') || '';
+      const d = sessionStorage.getItem('global_date') || localStorage.getItem('global_date') || '';
+      const a = sessionStorage.getItem('global_auditor') || localStorage.getItem('global_auditor') || '';
+
+      sessionStorage.setItem('global_branch', b);
+      sessionStorage.setItem('global_date', d);
+      sessionStorage.setItem('global_auditor', a);
+
+      const branchEl = document.getElementById('branchName');
+      const dateEl = document.getElementById('auditDate');
+      const auditorEl = document.getElementById('auditorName');
+
+      if (branchEl) branchEl.value = b;
+      if (auditorEl) auditorEl.value = a;
+      if (dateEl) dateEl.value = d;
+
+      if (branchEl) { branchEl.readOnly = true; branchEl.setAttribute('readonly', 'readonly'); }
+      if (dateEl)   { dateEl.readOnly = true;   dateEl.setAttribute('readonly', 'readonly'); }
+      if (auditorEl){ auditorEl.readOnly = true;auditorEl.setAttribute('readonly', 'readonly'); }
+    }
+
+    const DYN = {
+      stock: { key: 'dyn_stock_rows', cols: 8, tbodyId: 'stockTbody', rowPrefix: 'stock_row' },
+      close: { key: 'dyn_overdue_close_rows', cols: 4, tbodyId: 'overdueCloseTbody', rowPrefix: 'overdue_close_row' },
+      tax:   { key: 'dyn_overdue_tax_rows', cols: 5, tbodyId: 'overdueTaxTbody', rowPrefix: 'overdue_tax_row' },
+    };
+
+    function ensureDynEmptyIfNew() {
+      if (!sessionStorage.getItem(DYN.stock.key)) sessionStorage.setItem(DYN.stock.key, JSON.stringify([]));
+      if (!sessionStorage.getItem(DYN.close.key)) sessionStorage.setItem(DYN.close.key, JSON.stringify([]));
+      if (!sessionStorage.getItem(DYN.tax.key))   sessionStorage.setItem(DYN.tax.key, JSON.stringify([]));
+    }
+
+    function createCellTextarea(id, value, onInput, opts = {}) {
+      const ta = document.createElement('textarea');
+      ta.className = 'cell-textarea';
+      ta.rows = 1;
+      ta.id = id;
+      ta.value = value ?? "";
+      if (opts.singleLine) {
+        ta.wrap = 'off';
+        ta.style.whiteSpace = 'nowrap';
+        ta.style.overflowX = 'auto';
+        ta.style.overflowY = 'hidden';
+        ta.style.wordBreak = 'normal';
+        ta.style.overflowWrap = 'normal';
+      }
+      ta.oninput = () => {
+        autoGrowCell(ta);
+        onInput?.(ta.value);
+      };
+      setTimeout(() => autoGrowCell(ta), 0);
+      return ta;
+    }
+
+    function renderDynTable(type) {
+      const conf = DYN[type];
+      const tbody = document.getElementById(conf.tbodyId);
+      if (!tbody) return;
+
+      const rows = JSON.parse(sessionStorage.getItem(conf.key) || "[]");
+      tbody.innerHTML = "";
+
+      rows.forEach((row, i) => {
+        const tr = document.createElement('tr');
+
+        for (let j = 0; j < conf.cols; j++) {
+          const td = document.createElement('td');
+          const id = `${conf.rowPrefix}_${i}_col_${j}`;
+
+          const ta = createCellTextarea(id, row[j], (val) => {
+            row[j] = val;
+            rows[i] = row;
+            sessionStorage.setItem(conf.key, JSON.stringify(rows));
+            savePage3Data();
+          }, {
+            singleLine: type === 'tax' && j === 0
+          });
+
+          td.appendChild(ta);
+          tr.appendChild(td);
+        }
+
+        const tdDel = document.createElement('td');
+        tdDel.style.textAlign = "center";
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = "btn-del-row";
+        btn.textContent = "ลบ";
+        btn.onclick = () => {
+          const newRows = rows.filter((_, idx) => idx !== i);
+          sessionStorage.setItem(conf.key, JSON.stringify(newRows));
+          renderDynTable(type);
+          savePage3Data();
+        };
+        tdDel.appendChild(btn);
+        tr.appendChild(tdDel);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addRow(type) {
+      const conf = DYN[type];
+      const rows = JSON.parse(sessionStorage.getItem(conf.key) || "[]");
+      rows.push(Array.from({length: conf.cols}, () => ""));
+      sessionStorage.setItem(conf.key, JSON.stringify(rows));
+      renderDynTable(type);
+      savePage3Data();
+      initAutoGrowAll();
+    }
+    function addStockRow(){ addRow('stock'); }
+    function addOverdueCloseRow(){ addRow('close'); }
+    function addOverdueTaxRow(){ addRow('tax'); }
+
+    function savePage3Data() {
+  const data = {};
+  const inputs = document.querySelectorAll('input, select, textarea');
+
+  inputs.forEach(el => {
+    if (el.id) data[el.id] = el.value;
+  });
+
+  // ✅ เพิ่ม 4 ช่องสถานะที่เป็น span
+  data.status_car = document.getElementById('status_car')?.innerText || '';
+  data.car_close_status = document.getElementById('car_close_status')?.innerText || '';
+  data.status_moto = document.getElementById('status_moto')?.innerText || '';
+  data.moto_close_status = document.getElementById('moto_close_status')?.innerText || '';
+
+  data.__dyn_stock = JSON.parse(sessionStorage.getItem(DYN.stock.key) || "[]");
+  data.__dyn_overdue_close = JSON.parse(sessionStorage.getItem(DYN.close.key) || "[]");
+  data.__dyn_overdue_tax = JSON.parse(sessionStorage.getItem(DYN.tax.key) || "[]");
+
+  sessionStorage.setItem('page3_cache', JSON.stringify(data));
+  initSelectPlaceholders();
+}
+
+    function loadPage3Data() {
+      const saved = sessionStorage.getItem('page3_cache');
+      if (!saved) return;
+      const data = JSON.parse(saved);
+
+      Object.keys(data).forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !id.startsWith("__dyn_")) el.value = data[id];
+      });
+
+      if (Array.isArray(data.__dyn_stock)) sessionStorage.setItem(DYN.stock.key, JSON.stringify(data.__dyn_stock));
+      if (Array.isArray(data.__dyn_overdue_close)) sessionStorage.setItem(DYN.close.key, JSON.stringify(data.__dyn_overdue_close));
+      if (Array.isArray(data.__dyn_overdue_tax)) sessionStorage.setItem(DYN.tax.key, JSON.stringify(data.__dyn_overdue_tax));
+
+      renderDynTable('stock');
+      renderDynTable('close');
+      renderDynTable('tax');
+
+      checkCar(); checkMoto(); checkCloseCar(); checkCloseMoto();
+      initAutoGrowAll();
+      initSelectPlaceholders();
+    }
+
     function checkCar() {
       const s = +document.getElementById('car_sys').value || 0;
       const r = +document.getElementById('car_real').value || 0;
@@ -218,6 +516,7 @@
       const b = document.getElementById('status_car');
       b.innerText = (s - r - o === 0) ? "ถูกต้อง" : "ไม่ถูกต้อง";
       b.className = (s - r - o === 0) ? "calc-status is-ok" : "calc-status is-error";
+      savePage3Data();
     }
     function checkMoto() {
       const s = +document.getElementById('moto_sys').value || 0;
@@ -226,6 +525,7 @@
       const b = document.getElementById('status_moto');
       b.innerText = (s - r - o === 0) ? "ถูกต้อง" : "ไม่ถูกต้อง";
       b.className = (s - r - o === 0) ? "calc-status is-ok" : "calc-status is-error";
+      savePage3Data();
     }
     function checkCloseCar() {
       const s = document.getElementById('car_close_sys').value;
@@ -233,6 +533,7 @@
       const b = document.getElementById('car_close_status');
       b.innerText = (s === r) ? "ตรงรายงาน" : "ไม่ตรงรายงาน";
       b.className = (s === r) ? "calc-status is-match" : "calc-status is-mismatch";
+      savePage3Data();
     }
     function checkCloseMoto() {
       const s = document.getElementById('moto_close_sys').value;
@@ -240,11 +541,298 @@
       const b = document.getElementById('moto_close_status');
       b.innerText = (s === r) ? "ตรงรายงาน" : "ไม่ตรงรายงาน";
       b.className = (s === r) ? "calc-status is-match" : "calc-status is-mismatch";
+      savePage3Data();
     }
+
+    function getDynRowsCount(type) {
+      try {
+        const conf = DYN[type];
+        const rows = JSON.parse(sessionStorage.getItem(conf.key) || "[]");
+        return Array.isArray(rows) ? rows.length : 0;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function validateOutsideOfficeRequiredFields() {
+      const carOut = +document.getElementById('car_out').value || 0;
+      const motoOut = +document.getElementById('moto_out').value || 0;
+
+      if (carOut > 0) {
+        const carApproveBy = (document.getElementById('car_approve_by').value || '').trim();
+        const carOutIds = (document.getElementById('car_out_ids').value || '').trim();
+        const carOutReason = (document.getElementById('car_out_reason').value || '').trim();
+
+        if (!carApproveBy) {
+          alert('กรุณากรอกอนุมัติรับทราบโดย ของเล่มทะเบียนรถยนต์');
+          document.getElementById('car_approve_by').focus();
+          return false;
+        }
+        if (!carOutIds) {
+          alert('กรุณากรอกเลขสัญญาเล่มที่อยู่นอก สนง. ของเล่มทะเบียนรถยนต์');
+          document.getElementById('car_out_ids').focus();
+          return false;
+        }
+        if (!carOutReason) {
+          alert('กรุณากรอกสาเหตุของเล่มอยู่นอก สนง. ของเล่มทะเบียนรถยนต์');
+          document.getElementById('car_out_reason').focus();
+          return false;
+        }
+      }
+
+      if (motoOut > 0) {
+        const motoApproveBy = (document.getElementById('moto_approve_by').value || '').trim();
+        const motoOutIds = (document.getElementById('moto_out_ids').value || '').trim();
+        const motoOutReason = (document.getElementById('moto_out_reason').value || '').trim();
+
+        if (!motoApproveBy) {
+          alert('กรุณากรอกอนุมัติรับทราบโดย ของเล่มทะเบียนรถจักรยานยนต์');
+          document.getElementById('moto_approve_by').focus();
+          return false;
+        }
+        if (!motoOutIds) {
+          alert('กรุณากรอกเลขสัญญาเล่มที่อยู่นอก สนง. ของเล่มทะเบียนรถจักรยานยนต์');
+          document.getElementById('moto_out_ids').focus();
+          return false;
+        }
+        if (!motoOutReason) {
+          alert('กรุณากรอกสาเหตุของเล่มอยู่นอก สนง. ของเล่มทะเบียนรถจักรยานยนต์');
+          document.getElementById('moto_out_reason').focus();
+          return false;
+        }
+      }
+
+      const stockTotalCars = +document.getElementById('stock_total_cars').value || 0;
+      const stockTotalBooks = +document.getElementById('stock_total_books').value || 0;
+      const stockRowsCount = getDynRowsCount('stock');
+      if ((stockTotalCars > 0 || stockTotalBooks > 0) && stockRowsCount < 1) {
+        alert('สต็อกในความรับผิดชอบมีจำนวนมากกว่า 0 กรุณาเพิ่มแถวอย่างน้อย 1 แถว');
+        document.getElementById('stockSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+
+      const overdueCloseCount = +document.getElementById('overdue_close_count').value || 0;
+      const overdueCloseRowsCount = getDynRowsCount('close');
+      if (overdueCloseCount > 0 && overdueCloseRowsCount < overdueCloseCount) {
+        alert(`ปิดบัญชีไม่รับเล่มเกิน 2 ปี ระบุจำนวน ${overdueCloseCount} เล่ม กรุณาเพิ่มแถวให้ครบ ${overdueCloseCount} แถว`);
+        document.getElementById('overdueCloseTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+
+      const overdueTaxCount = +document.getElementById('overdue_tax_count').value || 0;
+      const overdueTaxRowsCount = getDynRowsCount('tax');
+      if (overdueTaxCount > 0 && overdueTaxRowsCount < overdueTaxCount) {
+        alert(`ทะเบียนขาดตั้งแต่ 2 ปีขึ้นไป ระบุจำนวน ${overdueTaxCount} เล่ม กรุณาเพิ่มแถวให้ครบ ${overdueTaxCount} แถว`);
+        document.getElementById('overdueTaxTable').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+
+      return true;
+    }
+
+    /* =========================
+       ✅ PDF EXPORT (เหมือนหน้าเว็บจริง)
+       - ใช้ onclone (ไม่แตะ DOM จริง)
+       - ล็อก viewport 1200 และคุม scale แบบเดียวกับหน้าอื่น
+    ========================= */
+
+    function waitForAssetsInDoc(doc){
+      const promises = [];
+      const imgs = Array.from(doc.images || []);
+      imgs.forEach(img=>{
+        if(!img.complete){
+          promises.push(new Promise(res=>{
+            img.onload = ()=>res();
+            img.onerror = ()=>res();
+          }));
+        }
+      });
+      if (doc.fonts && doc.fonts.ready) {
+        promises.push(doc.fonts.ready.catch(()=>{}));
+      }
+      return Promise.all(promises);
+    }
+
+    function freezeFixedStickyInClonedDoc(clonedDoc){
+      const nodes = clonedDoc.querySelectorAll('*');
+      nodes.forEach(el=>{
+        const st = clonedDoc.defaultView.getComputedStyle(el);
+        if (st.position === 'fixed' || st.position === 'sticky') {
+          el.style.position = 'static';
+        }
+      });
+    }
+
+    function computeAndSetScaleToFitA4(clonedDoc){
+      const A4PX = 794;
+      const MARGIN_PX = 30;
+      const targetW = A4PX - MARGIN_PX;
+
+      const viewport = clonedDoc.documentElement.style.getPropertyValue('--pdfViewport') || '1200px';
+      const vw = parseFloat(viewport) || 1200;
+
+      let scale = 1;
+      if (vw > targetW) scale = targetW / vw;
+      if (scale < 0.55) scale = 0.55;
+
+      clonedDoc.documentElement.style.setProperty('--pdfScale', scale.toFixed(4));
+      return scale;
+    }
+
+    function buildPdfOptionsForTarget(target){
+      const VIEWPORT_W = 1200;
+
+      // ✅ ใช้ความสูงของ target จริง เพื่อเก็บข้อมูลครบ (ไม่ตัด)
+      const winH = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+        target.scrollHeight
+      );
+
+      return {
+        margin: [8, 8, 8, 8],
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          scrollY: 0,
+          scrollX: 0,
+
+          // ✅ ล็อกความกว้างให้คงที่เหมือนหน้าอื่น (กัน reflow)
+          windowWidth:  VIEWPORT_W,
+          windowHeight: winH || 2200,
+
+          onclone: (clonedDoc) => {
+            clonedDoc.body.classList.add('pdf-exporting');
+            clonedDoc.documentElement.style.setProperty('--pdfViewport', VIEWPORT_W + 'px');
+
+            // autosize textarea ทั้งหมด รวม cell-textarea
+            clonedDoc.querySelectorAll('textarea').forEach(t=>{
+              t.style.height = 'auto';
+              t.style.height = (t.scrollHeight) + 'px';
+            });
+
+            // placeholder select จางๆ ให้เหมือนหน้าเว็บ
+            clonedDoc.querySelectorAll('select').forEach(sel=>{
+              if ((sel.value || "") === "") sel.classList.add('placeholder');
+              else sel.classList.remove('placeholder');
+            });
+
+            freezeFixedStickyInClonedDoc(clonedDoc);
+            computeAndSetScaleToFitA4(clonedDoc);
+          }
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: {
+          mode: ["css", "legacy"],
+          avoid: [".card", ".report-table", "tr"]
+        }
+      };
+    }
+
+    async function exportCurrentPage3(){
+      savePage3Data();
+      initAutoGrowAll();
+      initSelectPlaceholders();
+
+      await waitForAssetsInDoc(document);
+
+      const target = document.querySelector('.container') || document.body;
+      const opt = buildPdfOptionsForTarget(target);
+
+      const worker = html2pdf().set(opt).from(target);
+      const ab = await worker.outputPdf('arraybuffer');
+      return ab;
+    }
+
+    // ✅ ให้หน้า 4 เรียกใช้เพื่อ “เอาไฟล์หน้า 3 ไป merge”
+    window.generatePDFBuffer = async function () {
+      return await exportCurrentPage3();
+    };
+
+    window.addEventListener("message", async (event) => {
+      try {
+        if (!event.data || event.data.type !== "REQ_PDF_BUFFER") return;
+        if (typeof window.generatePDFBuffer !== "function") {
+          throw new Error("ไม่มี generatePDFBuffer() ในหน้า 3");
+        }
+        const ab = await window.generatePDFBuffer();
+        event.source?.postMessage({ type: "PDF_BUFFER", buffer: ab }, "*", [ab]);
+      } catch (err) {
+        event.source?.postMessage(
+          { type: "PDF_BUFFER_ERROR", message: err?.message || String(err) },
+          "*"
+        );
+      }
+    });
+
+    function goBack() {
+      savePage3Data();
+      window.location.href = "page2.html";
+    }
+    function goNext() {
+      savePage3Data();
+      window.location.href = "page4.html";
+    }
+
+    /* =========================================================
+       ✅ ปิด Chrome Autofill/แนะนำ "ข้อมูลที่บันทึก" (เหมือนหน้า 2)
+       - ไม่กระทบ UI/รายละเอียด
+       ========================================================= */
+    function killChromeAutofill() {
+      document.querySelectorAll('input, textarea, select').forEach((el, i) => {
+        el.setAttribute('autocomplete','off');
+        el.setAttribute('autocorrect','off');
+        el.setAttribute('autocapitalize','off');
+        el.setAttribute('spellcheck','false');
+
+        const rnd = Math.random().toString(36).substring(2,10);
+        el.setAttribute('name', 'no_autofill_' + rnd + '_' + i);
+
+        if (['branchName', 'auditDate', 'auditorName'].includes(el.id)) {
+          el.readOnly = true;
+          return;
+        }
+
+        if (el.tagName === 'INPUT') {
+          const t = (el.getAttribute('type') || '').toLowerCase();
+          if (t !== 'date' && t !== 'file') {
+            el.readOnly = true;
+            el.addEventListener('focus', function(){
+              this.readOnly = false;
+            }, { once:false });
+          }
+        }
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadHeaderData();
+      killChromeAutofill();
+    });
+
+    window.addEventListener('pageshow', () => {
+      loadHeaderData();
+    });
+
     window.onload = () => {
-      document.getElementById('branchName').value = localStorage.getItem('global_branch') || '';
-      document.getElementById('auditorName').value = localStorage.getItem('global_auditor') || '';
-      document.getElementById('auditDate').value = localStorage.getItem('global_date') || '';
+      loadHeaderData();
+      ensureDynEmptyIfNew();
+      renderDynTable('stock');
+      renderDynTable('close');
+      renderDynTable('tax');
+      loadPage3Data();
+      loadHeaderData();
+      initSelectPlaceholders();
+      initAutoGrowAll();
+
+      // เผื่อ Chrome ยังดื้อ เรียกซ้ำเบา ๆ อีกครั้งหลังโหลด
+      setTimeout(() => {
+        loadHeaderData();
+        killChromeAutofill();
+      }, 250);
     };
   </script>
 </body>
